@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Editor — Artikelmarkierung</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: #1a1a2e;
+  color: #e0e0e0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* === LAYOUT === */
+.layout {
+  display: grid;
+  grid-template-columns: 260px 1fr 380px;
+  height: 100vh;
+}
+
+/* === LEFT: TIMELINE === */
+.timeline-panel {
+  background: #12122a;
+  border-right: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.timeline-header {
+  padding: 12px 14px;
+  border-bottom: 1px solid #333;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  flex-shrink: 0;
+}
+
+.timeline-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.tl-date-label {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #555;
+  margin: 12px 0 4px 4px;
+}
+
+.tl-item {
+  padding: 8px 10px;
+  margin-bottom: 4px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+}
+
+.tl-item:hover { background: #1e1e40; border-color: #444; }
+.tl-item.active { background: #2a2820; border-color: #e8c840; }
+
+.tl-item .tl-newspaper {
+  font-size: 0.6rem;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tl-item .tl-title {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #ccc;
+  margin: 2px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.tl-item .tl-meta {
+  font-size: 0.6rem;
+  color: #555;
+}
+
+.tl-item .tl-page {
+  font-size: 0.6rem;
+  color: #e8c840;
+  margin-top: 2px;
+}
+
+/* === CENTER: PAGE IMAGE === */
+.center-panel {
+  display: flex;
+  flex-direction: column;
+  background: #111;
+  overflow: hidden;
+}
+
+.center-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px;
+  background: #16213e;
+  border-bottom: 1px solid #333;
+  flex-shrink: 0;
+  height: 40px;
+}
+
+.center-toolbar button {
+  padding: 4px 12px;
+  border: 1px solid #444;
+  border-radius: 4px;
+  background: #2a2a4a;
+  color: #e0e0e0;
+  font-size: 0.75rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.center-toolbar button:hover { background: #3a3a5a; }
+.center-toolbar button.active { background: #4a3a10; border-color: #e8c840; color: #e8c840; }
+.center-toolbar button.primary { background: #2c6e49; border-color: #2c6e49; }
+.center-toolbar button.primary:hover { background: #3a8a5a; }
+.center-toolbar button.delete { background: #4a1a1a; border-color: #c44; }
+.center-toolbar button.delete:hover { background: #6a2a2a; }
+
+.center-toolbar .spacer { flex: 1; }
+.center-toolbar .page-info { font-size: 0.75rem; color: #888; }
+.center-toolbar .hl-count { font-size: 0.7rem; color: #e8c840; }
+
+.page-nav-input {
+  width: 50px;
+  text-align: center;
+  padding: 3px;
+  background: #2a2a4a;
+  border: 1px solid #444;
+  border-radius: 4px;
+  color: #e0e0e0;
+  font-size: 0.75rem;
+}
+
+.canvas-area {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 16px;
+}
+
+.page-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.page-wrapper.draw-mode { cursor: crosshair; }
+
+.page-wrapper img {
+  display: block;
+  max-height: calc(100vh - 70px);
+  width: auto;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Highlight rects */
+.hl-rect {
+  position: absolute;
+  background: rgba(255, 220, 50, 0.22);
+  border: 2px solid rgba(255, 200, 0, 0.6);
+  z-index: 10;
+  cursor: move;
+}
+
+.hl-rect.selected { border-color: #fff; }
+
+.hl-rect .hl-label {
+  position: absolute;
+  top: -18px;
+  left: 0;
+  font-size: 0.55rem;
+  background: rgba(255, 200, 0, 0.85);
+  color: #333;
+  padding: 1px 5px;
+  border-radius: 2px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.resize-handle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: white;
+  border: 1px solid #666;
+  border-radius: 2px;
+  z-index: 20;
+  display: none;
+}
+
+.hl-rect.selected .resize-handle { display: block; }
+
+.resize-handle.nw { top: -5px; left: -5px; cursor: nw-resize; }
+.resize-handle.ne { top: -5px; right: -5px; cursor: ne-resize; }
+.resize-handle.sw { bottom: -5px; left: -5px; cursor: sw-resize; }
+.resize-handle.se { bottom: -5px; right: -5px; cursor: se-resize; }
+.resize-handle.n  { top: -5px; left: calc(50% - 5px); cursor: n-resize; }
+.resize-handle.s  { bottom: -5px; left: calc(50% - 5px); cursor: s-resize; }
+.resize-handle.w  { top: calc(50% - 5px); left: -5px; cursor: w-resize; }
+.resize-handle.e  { top: calc(50% - 5px); right: -5px; cursor: e-resize; }
+
+.draw-preview {
+  position: absolute;
+  background: rgba(255, 220, 50, 0.15);
+  border: 2px dashed rgba(255, 200, 0, 0.5);
+  pointer-events: none;
+  z-index: 30;
+}
+
+/* === RIGHT: TRANSCRIPTION === */
+.right-panel {
+  background: #16213e;
+  border-left: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.right-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid #333;
+  flex-shrink: 0;
+}
+
+.right-header h2 { font-size: 0.8rem; font-weight: 500; color: #aaa; }
+
+.right-header .edition-info {
+  font-size: 0.72rem;
+  color: #e8c840;
+  margin-top: 3px;
+}
+
+.right-header .no-article {
+  font-size: 0.72rem;
+  color: #555;
+  font-style: italic;
+  margin-top: 3px;
+}
+
+.trans-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 16px;
+}
+
+.trans-newspaper {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #555;
+  margin-bottom: 3px;
+}
+
+.trans-title {
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ddd;
+  margin-bottom: 4px;
+}
+
+.trans-edition {
+  font-size: 0.72rem;
+  color: #777;
+  margin-bottom: 10px;
+}
+
+.trans-remarks {
+  font-size: 0.72rem;
+  color: #999;
+  font-style: italic;
+  padding: 6px 10px;
+  background: #12122a;
+  border-left: 3px solid #e8c840;
+  border-radius: 3px;
+  margin-bottom: 12px;
+}
+
+.trans-text {
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 0.88rem;
+  line-height: 1.75;
+  color: #bbb;
+}
+
+.trans-text p { margin-bottom: 0.6rem; text-align: justify; }
+
+.trans-empty {
+  color: #555;
+  font-style: italic;
+  text-align: center;
+  padding-top: 60px;
+  font-size: 0.85rem;
+  line-height: 1.8;
+}
+
+/* Split mode */
+.split-toolbar {
+  display: flex;
+  gap: 6px;
+  padding: 8px 0;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #333;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.split-toolbar button {
+  padding: 4px 10px;
+  border: 1px solid #444;
+  border-radius: 4px;
+  background: #2a2a4a;
+  color: #e0e0e0;
+  font-size: 0.72rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.split-toolbar button:hover { background: #3a3a5a; }
+.split-toolbar button.split-confirm { background: #6a4a10; border-color: #e8c840; color: #e8c840; }
+.split-toolbar button.split-confirm:hover { background: #8a6a20; }
+.split-toolbar button.split-cancel { background: #3a1a1a; border-color: #c44; color: #e88; }
+.split-toolbar .split-hint {
+  font-size: 0.65rem;
+  color: #888;
+  flex-basis: 100%;
+}
+
+.trans-text-editable {
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 0.88rem;
+  line-height: 1.75;
+  color: #bbb;
+  background: #0d0d20;
+  border: 1px solid #e8c840;
+  border-radius: 4px;
+  padding: 10px;
+  min-height: 200px;
+  white-space: pre-wrap;
+  outline: none;
+}
+
+.split-btn {
+  padding: 4px 10px;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background: #2a2a4a;
+  color: #ccc;
+  font-size: 0.72rem;
+  cursor: pointer;
+  font-family: inherit;
+  margin-top: 8px;
+  display: inline-block;
+}
+
+.split-btn:hover { background: #3a3a5a; border-color: #e8c840; color: #e8c840; }
+
+/* Search bar */
+.search-bar {
+  display: flex;
+  gap: 4px;
+  padding: 6px 16px;
+  border-bottom: 1px solid #333;
+  flex-shrink: 0;
+}
+
+.search-bar input {
+  flex: 1;
+  padding: 4px 8px;
+  background: #0d0d20;
+  border: 1px solid #444;
+  border-radius: 4px;
+  color: #e0e0e0;
+  font-size: 0.75rem;
+  font-family: inherit;
+}
+
+.search-bar input:focus { border-color: #e8c840; outline: none; }
+
+.search-bar button {
+  padding: 4px 8px;
+  background: #2a2a4a;
+  border: 1px solid #444;
+  border-radius: 4px;
+  color: #e0e0e0;
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+
+.search-bar .search-count { font-size: 0.65rem; color: #888; align-self: center; min-width: 40px; }
+
+mark { background: #e8c840; color: #111; padding: 0 1px; border-radius: 2px; }
+mark.current { background: #ff6b35; color: #fff; }
+
+/* Timeline edit */
+.tl-item .tl-edit-btn {
+  display: none;
+  float: right;
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  font-size: 0.65rem;
+  padding: 0 2px;
+}
+
+.tl-item:hover .tl-edit-btn { display: inline; }
+.tl-item .tl-edit-btn:hover { color: #e8c840; }
+
+.tl-edit-form input, .tl-edit-form textarea {
+  width: 100%;
+  padding: 3px 6px;
+  margin: 2px 0;
+  background: #0d0d20;
+  border: 1px solid #e8c840;
+  border-radius: 3px;
+  color: #e0e0e0;
+  font-size: 0.7rem;
+  font-family: inherit;
+}
+
+.tl-edit-form textarea { resize: vertical; min-height: 40px; }
+
+.tl-edit-form .tl-edit-actions {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.tl-edit-form button {
+  padding: 2px 8px;
+  border: 1px solid #444;
+  border-radius: 3px;
+  font-size: 0.65rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.tl-edit-form .save-btn { background: #2c6e49; color: #fff; border-color: #2c6e49; }
+.tl-edit-form .cancel-btn { background: #2a2a4a; color: #ccc; }
+
+/* Fixed split bar */
+#splitBarFixed {
+  padding: 6px 16px;
+  border-bottom: 1px solid #333;
+  background: #1a1a35;
+  flex-shrink: 0;
+}
+
+#splitBarFixed .split-bar-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Split target page input */
+.split-page-input {
+  width: 55px;
+  padding: 3px 5px;
+  background: #0d0d20;
+  border: 1px solid #e8c840;
+  border-radius: 4px;
+  color: #e8c840;
+  font-size: 0.75rem;
+  text-align: center;
+  font-family: inherit;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #2c6e49;
+  color: white;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.toast.show { opacity: 1; }
+</style>
+<script src="data.js"></script>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- LEFT: TIMELINE -->
+  <div class="timeline-panel">
+    <div class="timeline-header">Zeitleiste · Artikel</div>
+    <div class="timeline-list" id="timelineList"></div>
+  </div>
+
+  <!-- CENTER: PAGE IMAGE -->
+  <div class="center-panel">
+    <div class="center-toolbar">
+      <button onclick="goPage(-1)">◀</button>
+      <span class="page-info">Seite</span>
+      <input class="page-nav-input" type="number" id="pageInput" value="1" min="1" max="258"
+             onchange="goPageTo(this.value)">
+      <span class="page-info">/ 258</span>
+      <button onclick="goPage(1)">▶</button>
+
+      <span class="spacer"></span>
+
+      <span class="hl-count" id="hlCount"></span>
+      <button id="drawBtn" onclick="toggleDrawMode()">✏ Neues Rechteck</button>
+      <button class="delete" id="deleteBtn" onclick="deleteSelected()" style="display:none">✕ Löschen</button>
+
+      <span class="spacer"></span>
+
+      <button class="primary" onclick="exportData()">💾 Speichern</button>
+      <button onclick="document.getElementById('fileInput').click()">📂 Laden</button>
+      <input type="file" id="fileInput" accept=".json,.js" style="display:none" onchange="loadFile(event)">
+    </div>
+    <div class="canvas-area" id="canvasArea">
+      <div class="page-wrapper" id="pageWrapper">
+        <img id="pageImg" src="" alt="" draggable="false">
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: TRANSCRIPTION -->
+  <div class="right-panel">
+    <div class="right-header">
+      <h2 id="rightTitle">Transkription</h2>
+      <div id="rightInfo"></div>
+    </div>
+    <div class="search-bar" id="searchBar">
+      <input type="text" id="searchInput" placeholder="Text suchen…" oninput="onSearchInput()">
+      <button onclick="searchNav(-1)">▲</button>
+      <button onclick="searchNav(1)">▼</button>
+      <span class="search-count" id="searchCount"></span>
+    </div>
+    <div id="splitBarFixed" style="display:none"></div>
+    <div class="trans-scroll" id="transScroll">
+      <div id="transContent"></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let DATA = [];
+let currentPage = 1;
+const TOTAL = 258;
+
+let articlePages = [];
+let pageToEntry = {};
+
+// Editing state
+let drawMode = false;
+let isDrawing = false;
+let drawStart = null;
+let preview = null;
+let selectedRect = null;
+
+// Search state
+let searchMatches = [];
+let searchCurrent = -1;
+
+const wrapper = document.getElementById('pageWrapper');
+const img = document.getElementById('pageImg');
+
+// === LOAD DATA ===
+function initData(data) {
+  DATA = data.map(e => ({...e, highlights: e.highlights || [], tlLabel: e.tlLabel || ''}));
+  articlePages = [];
+  pageToEntry = {};
+  DATA.forEach((e, idx) => {
+    if (e.pdfPage && e.text && e.text.length > 50) {
+      articlePages.push({ page: e.pdfPage, idx: idx });
+      pageToEntry[e.pdfPage] = idx;
+    }
+  });
+  articlePages.sort((a, b) => a.page - b.page);
+  document.getElementById('timelineList').innerHTML = '';
+  buildTimeline();
+  if (articlePages.length > 0) {
+    goPageTo(articlePages[0].page);
+  } else {
+    goPageTo(1);
+  }
+}
+
+// === LOAD FILE (a) ===
+function loadFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    let text = e.target.result;
+    // If it's a .js file, extract the JSON from window.ARTICLE_DATA = ...;
+    if (file.name.endsWith('.js')) {
+      const match = text.match(/window\.ARTICLE_DATA\s*=\s*(\[[\s\S]*\])\s*;?\s*$/);
+      if (match) text = match[1];
+    }
+    try {
+      const data = JSON.parse(text);
+      if (!Array.isArray(data)) throw new Error('Kein Array');
+      initData(data);
+      showToast(file.name + ' geladen — ' + data.length + ' Einträge');
+    } catch(err) {
+      showToast('Fehler beim Laden: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = ''; // reset so same file can be loaded again
+}
+
+// Use data.js (script tag, works with file://) or fetch as fallback
+if (window.ARTICLE_DATA) {
+  initData(window.ARTICLE_DATA);
+} else {
+  fetch('data.json')
+    .then(r => { if (!r.ok) throw new Error('data.json nicht gefunden'); return r.json(); })
+    .then(data => initData(data))
+    .catch(e => {
+      document.getElementById('transContent').innerHTML =
+        '<div class="trans-empty">Fehler: ' + e.message + '<br>data.js nicht gefunden und kein Server aktiv.<br>Stellen Sie sicher, dass data.js im selben Ordner wie editor.html liegt.</div>';
+    });
+}
+
+// === TIMELINE ===
+function buildTimeline() {
+  const list = document.getElementById('timelineList');
+  let currentDate = '';
+
+  articlePages.forEach(({ page, idx }) => {
+    const entry = DATA[idx];
+
+    if (entry.date !== currentDate) {
+      currentDate = entry.date;
+      const label = document.createElement('div');
+      label.className = 'tl-date-label';
+      label.textContent = entry.weekday + ', ' + entry.date;
+      list.appendChild(label);
+    }
+
+    const firstLine = entry.text.split('\n').find(l => l.trim().length > 10);
+    const defaultTitle = firstLine ? firstLine.trim().substring(0, 70) : entry.edition;
+    const displayTitle = entry.tlLabel || defaultTitle;
+
+    const item = document.createElement('div');
+    item.className = 'tl-item';
+    item.dataset.page = page;
+    item.dataset.idx = idx;
+    item.innerHTML =
+      '<button class="tl-edit-btn" onclick="event.stopPropagation(); startTlEdit(' + idx + ', this.closest(\'.tl-item\'))">✎</button>' +
+      '<div class="tl-newspaper">' + entry.newspaper.substring(0, 30) + '</div>' +
+      '<div class="tl-title">' + escapeHtml(displayTitle).replace(/<br>/g, ' ') + (displayTitle.length > 70 ? '…' : '') + '</div>' +
+      '<div class="tl-meta">' + entry.edition.split(',')[0] + '</div>' +
+      '<div class="tl-page">PDF-Seite ' + page + ' · ' + entry.highlights.length + ' Markierung' + (entry.highlights.length !== 1 ? 'en' : '') + '</div>';
+    item.addEventListener('click', () => goPageTo(page));
+    list.appendChild(item);
+  });
+}
+
+// === TIMELINE EDITING (d) ===
+function startTlEdit(idx, itemEl) {
+  const entry = DATA[idx];
+  const firstLine = entry.text.split('\n').find(l => l.trim().length > 10);
+  const defaultTitle = firstLine ? firstLine.trim().substring(0, 70) : entry.edition;
+  const currentLabel = entry.tlLabel || defaultTitle;
+  const currentRemarks = entry.remarks || '';
+
+  itemEl.innerHTML =
+    '<div class="tl-edit-form" onclick="event.stopPropagation()">' +
+      '<label style="font-size:0.6rem;color:#888">Titel in Zeitleiste:</label>' +
+      '<input type="text" id="tlEditLabel" value="' + escapeAttr(currentLabel) + '">' +
+      '<label style="font-size:0.6rem;color:#888;margin-top:4px">Anmerkungen:</label>' +
+      '<textarea id="tlEditRemarks">' + escapeHtml(currentRemarks).replace(/<br>/g, '\n') + '</textarea>' +
+      '<div class="tl-edit-actions">' +
+        '<button class="save-btn" onclick="saveTlEdit(' + idx + ')">OK</button>' +
+        '<button class="cancel-btn" onclick="cancelTlEdit()">Abbrechen</button>' +
+      '</div>' +
+    '</div>';
+  document.getElementById('tlEditLabel').focus();
+}
+
+function escapeAttr(s) {
+  return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function saveTlEdit(idx) {
+  const label = document.getElementById('tlEditLabel').value.trim();
+  const remarks = document.getElementById('tlEditRemarks').value.trim();
+  DATA[idx].tlLabel = label;
+  DATA[idx].remarks = remarks;
+  document.getElementById('timelineList').innerHTML = '';
+  buildTimeline();
+  updateTimelineActive();
+  updateTranscription();
+  showToast('Zeitleiste aktualisiert');
+}
+
+function cancelTlEdit() {
+  document.getElementById('timelineList').innerHTML = '';
+  buildTimeline();
+  updateTimelineActive();
+}
+
+function updateTimelineActive() {
+  document.querySelectorAll('.tl-item').forEach(item => {
+    item.classList.toggle('active', parseInt(item.dataset.page) === currentPage);
+  });
+  const active = document.querySelector('.tl-item.active');
+  if (active) active.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+}
+
+// === PAGE NAVIGATION ===
+function goPage(delta) { goPageTo(currentPage + delta); }
+
+function goPageTo(p) {
+  p = parseInt(p);
+  if (p < 1 || p > TOTAL || isNaN(p)) return;
+  currentPage = p;
+  document.getElementById('pageInput').value = p;
+  img.src = 'pages/page-' + String(p).padStart(3, '0') + '.jpg';
+  img.alt = 'Seite ' + p;
+  selectedRect = null;
+  drawMode = false;
+  document.getElementById('drawBtn').classList.remove('active');
+  wrapper.classList.remove('draw-mode');
+  document.getElementById('deleteBtn').style.display = 'none';
+  updateTimelineActive();
+  updateTranscription();
+  renderHighlights();
+}
+
+// === TRANSCRIPTION ===
+function updateTranscription() {
+  const entryIdx = pageToEntry[currentPage];
+  const title = document.getElementById('rightTitle');
+  const info = document.getElementById('rightInfo');
+  const content = document.getElementById('transContent');
+
+  // Reset search
+  searchMatches = [];
+  searchCurrent = -1;
+  document.getElementById('searchCount').textContent = '';
+
+  if (entryIdx === undefined) {
+    title.textContent = 'Transkription';
+    info.innerHTML = '<div class="no-article">Seite ' + currentPage + ' — kein Dreyfus-Artikel</div>';
+    content.innerHTML = '<div class="trans-empty">Auf dieser Seite wurde kein<br>Dreyfus-Artikel transkribiert.<br><br>Wählen Sie einen Artikel in der<br>Zeitleiste links aus.</div>';
+    document.getElementById('hlCount').textContent = '';
+    document.getElementById('splitBarFixed').style.display = 'none';
+    document.getElementById('splitBarFixed').innerHTML = '';
+    return;
+  }
+
+  const entry = DATA[entryIdx];
+  title.textContent = entry.newspaper;
+  info.innerHTML = '<div class="edition-info">' + entry.weekday + ', ' + entry.date + ' — ' + entry.edition + '</div>';
+
+  const firstLine = entry.text.split('\n').find(l => l.trim().length > 10);
+  const artTitle = firstLine ? firstLine.trim() : entry.edition;
+  const paragraphs = entry.text.split(/\n\s*\n/)
+    .map(p => '<p>' + p.replace(/\n/g, ' ').trim() + '</p>')
+    .join('');
+
+  const dfgHtml = entry.dfg_link
+    ? '<div style="margin:8px 0 12px;"><a href="' + entry.dfg_link + '" target="_blank" rel="noopener" style="color:#6ab0f3;font-size:0.72rem;text-decoration:none;border:1px solid #3a5070;padding:4px 10px;border-radius:4px;display:inline-block;">↗ DFG-Viewer — Original</a></div>'
+    : '';
+
+  // Split bar (fixed above scroll area)
+  const splitBar = document.getElementById('splitBarFixed');
+  const canSplit = entry.text.length > 100;
+  // Check if this is a "Fortsetzung" entry that can be pushed further
+  const canPush = entry.remarks && entry.remarks.startsWith('Fortsetzung');
+  if (canSplit || canPush) {
+    splitBar.style.display = '';
+    let barHtml = '<div class="split-bar-row">';
+    if (canSplit) {
+      barHtml += '<button class="split-btn" onclick="startSplit()">✂ Text teilen</button>';
+    }
+    if (canPush && currentPage + 1 <= TOTAL) {
+      barHtml += '<button class="split-btn" onclick="pushToNextPage()" style="margin-left:6px">→ Weiterschieben auf Seite ' + (currentPage + 1) + '</button>';
+    }
+    barHtml += '</div>';
+    splitBar.innerHTML = barHtml;
+  } else {
+    splitBar.style.display = 'none';
+    splitBar.innerHTML = '';
+  }
+
+  content.innerHTML =
+    '<div class="trans-newspaper">' + entry.newspaper + '</div>' +
+    '<div class="trans-title">' + artTitle + '</div>' +
+    '<div class="trans-edition">' + entry.edition + '</div>' +
+    dfgHtml +
+    (entry.remarks ? '<div class="trans-remarks">' + entry.remarks + '</div>' : '') +
+    '<div class="trans-text" id="transText">' + paragraphs + '</div>';
+
+  document.getElementById('hlCount').textContent =
+    entry.highlights.length + ' Markierung' + (entry.highlights.length !== 1 ? 'en' : '');
+
+  // Re-apply search if active
+  const q = document.getElementById('searchInput').value.trim();
+  if (q.length >= 3) doSearch();
+}
+
+// === TEXT SEARCH ===
+// Both modes use <mark> tags. fragmentToText() already handles marks correctly.
+
+function onSearchInput() {
+  doSearch();
+}
+
+function doSearch() {
+  const q = document.getElementById('searchInput').value.trim();
+  const countEl = document.getElementById('searchCount');
+  searchMatches = [];
+  searchCurrent = -1;
+
+  // Which element holds the text?
+  const splitEditor = document.getElementById('splitEditor');
+  const textEl = splitEditor || document.getElementById('transText');
+
+  if (!textEl || q.length < 3) {
+    countEl.textContent = '';
+    // Restore unmarked content
+    if (splitEditor) {
+      // Re-render from DATA without marks
+      const entryIdx = pageToEntry[currentPage];
+      if (entryIdx !== undefined) splitEditor.innerHTML = escapeHtml(DATA[entryIdx].text);
+    } else if (textEl) {
+      const entryIdx = pageToEntry[currentPage];
+      if (entryIdx !== undefined) {
+        textEl.innerHTML = DATA[entryIdx].text.split(/\n\s*\n/)
+          .map(p => '<p>' + p.replace(/\n/g, ' ').trim() + '</p>').join('');
+      }
+    }
+    return;
+  }
+
+  // Get the raw text from DATA (not from DOM — avoids stale mark tags)
+  const entryIdx = pageToEntry[currentPage];
+  if (entryIdx === undefined) return;
+  const rawText = DATA[entryIdx].text;
+  const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const re = new RegExp('(' + escaped + ')', 'gi');
+
+  if (splitEditor) {
+    // Split mode: mark inside the contenteditable
+    let matchIdx = 0;
+    const markedHtml = escapeHtml(rawText).replace(re, function(m) {
+      return '<mark data-mi="' + (matchIdx++) + '">' + m + '</mark>';
+    });
+    splitEditor.innerHTML = markedHtml;
+  } else {
+    // Normal mode: mark inside paragraph structure
+    let matchIdx = 0;
+    const highlighted = rawText.split(/\n\s*\n/)
+      .map(p => {
+        let line = p.replace(/\n/g, ' ').trim();
+        line = escapeHtml(line).replace(/<br>/g, ' ');
+        line = line.replace(re, function(m) {
+          return '<mark data-mi="' + (matchIdx++) + '">' + m + '</mark>';
+        });
+        return '<p>' + line + '</p>';
+      }).join('');
+    textEl.innerHTML = highlighted;
+  }
+
+  searchMatches = textEl.querySelectorAll('mark');
+  countEl.textContent = searchMatches.length > 0 ? searchMatches.length + ' Treffer' : 'keine';
+
+  if (searchMatches.length > 0) {
+    searchCurrent = 0;
+    highlightCurrentMatch();
+  }
+}
+
+function highlightCurrentMatch() {
+  searchMatches.forEach(m => m.classList.remove('current'));
+  if (searchCurrent >= 0 && searchCurrent < searchMatches.length) {
+    searchMatches[searchCurrent].classList.add('current');
+    searchMatches[searchCurrent].scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }
+}
+
+function searchNav(dir) {
+  if (searchMatches.length === 0) return;
+  searchCurrent = (searchCurrent + dir + searchMatches.length) % searchMatches.length;
+  highlightCurrentMatch();
+}
+
+// === TEXT SPLIT ===
+let splitMode = false;
+
+function startSplit() {
+  const entryIdx = pageToEntry[currentPage];
+  if (entryIdx === undefined) return;
+  const entry = DATA[entryIdx];
+  splitMode = true;
+
+  // Hide the split bar, show split toolbar in content
+  document.getElementById('splitBarFixed').style.display = 'none';
+
+  const content = document.getElementById('transContent');
+  content.innerHTML =
+    '<div class="split-toolbar">' +
+      '<button class="split-confirm" onclick="executeSplit()">✂ Hier teilen</button>' +
+      '<button class="split-cancel" onclick="cancelSplit()">Abbrechen</button>' +
+      '<div class="split-hint">Suche benutzen, Cursor an die Trennstelle setzen, dann „Hier teilen". ' +
+        'Text nach dem Cursor wird auf Seite ' + (currentPage + 1) + ' verschoben.</div>' +
+    '</div>' +
+    '<div class="trans-text-editable" contenteditable="true" id="splitEditor">' +
+      escapeHtml(entry.text) +
+    '</div>';
+
+  document.getElementById('splitEditor').focus();
+}
+
+function escapeHtml(text) {
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+}
+
+function cancelSplit() {
+  splitMode = false;
+  updateTranscription();
+}
+
+function executeSplit() {
+  const entryIdx = pageToEntry[currentPage];
+  if (entryIdx === undefined) return;
+  const nextPage = currentPage + 1;
+  if (nextPage > TOTAL) { showToast('Letzte Seite erreicht'); return; }
+
+  const editor = document.getElementById('splitEditor');
+  const sel = window.getSelection();
+  if (!sel.rangeCount || !editor.contains(sel.anchorNode)) {
+    showToast('Bitte Cursor im Text positionieren');
+    return;
+  }
+
+  const range = sel.getRangeAt(0);
+  const beforeRange = document.createRange();
+  beforeRange.setStart(editor, 0);
+  beforeRange.setEnd(range.startContainer, range.startOffset);
+
+  const afterRange = document.createRange();
+  afterRange.setStart(range.startContainer, range.startOffset);
+  afterRange.setEnd(editor, editor.childNodes.length);
+
+  const textBefore = fragmentToText(beforeRange.cloneContents()).trim();
+  const textAfter = fragmentToText(afterRange.cloneContents()).trim();
+
+  if (!textBefore || !textAfter) {
+    showToast('Text muss an beiden Seiten vorhanden sein');
+    return;
+  }
+
+  const entry = DATA[entryIdx];
+  entry.text = textBefore;
+
+  // Always put on next page
+  const targetEntryIdx = pageToEntry[nextPage];
+  if (targetEntryIdx !== undefined) {
+    DATA[targetEntryIdx].text = textAfter + '\n\n' + DATA[targetEntryIdx].text;
+    showToast('Text geteilt → Seite ' + nextPage);
+  } else {
+    const newEntry = {
+      newspaper: entry.newspaper,
+      date: entry.date,
+      weekday: entry.weekday,
+      edition: entry.edition,
+      dfg_link: entry.dfg_link || '',
+      dfg_viewer_generic: entry.dfg_viewer_generic || false,
+      remarks: 'Fortsetzung von Seite ' + currentPage,
+      tlLabel: '',
+      text: textAfter,
+      pdfPage: nextPage,
+      dfg_page: (entry.dfg_page || 0) + 1,
+      highlights: []
+    };
+    DATA.push(newEntry);
+
+    const newIdx = DATA.length - 1;
+    articlePages.push({ page: nextPage, idx: newIdx });
+    articlePages.sort((a, b) => a.page - b.page);
+    pageToEntry[nextPage] = newIdx;
+
+    document.getElementById('timelineList').innerHTML = '';
+    buildTimeline();
+    showToast('Text geteilt → neuer Eintrag Seite ' + nextPage);
+  }
+
+  splitMode = false;
+  updateTranscription();
+  renderHighlights();
+}
+
+// Move entire text of current page's entry to the next page
+function pushToNextPage() {
+  const entryIdx = pageToEntry[currentPage];
+  if (entryIdx === undefined) return;
+  const nextPage = currentPage + 1;
+  if (nextPage > TOTAL) { showToast('Letzte Seite erreicht'); return; }
+
+  const entry = DATA[entryIdx];
+  const textToMove = entry.text;
+
+  // Remove current entry from indices
+  delete pageToEntry[currentPage];
+  articlePages = articlePages.filter(a => a.page !== currentPage);
+
+  // Move to next page
+  const nextEntryIdx = pageToEntry[nextPage];
+  if (nextEntryIdx !== undefined) {
+    DATA[nextEntryIdx].text = textToMove + '\n\n' + DATA[nextEntryIdx].text;
+    // Mark old entry as empty
+    entry.text = '';
+    entry.pdfPage = null;
+  } else {
+    // Re-assign this entry to next page
+    entry.pdfPage = nextPage;
+    pageToEntry[nextPage] = entryIdx;
+    articlePages.push({ page: nextPage, idx: entryIdx });
+    articlePages.sort((a, b) => a.page - b.page);
+  }
+
+  document.getElementById('timelineList').innerHTML = '';
+  buildTimeline();
+  showToast('Text verschoben → Seite ' + nextPage);
+  goPageTo(nextPage);
+}
+
+function fragmentToText(frag) {
+  let text = '';
+  frag.childNodes.forEach(node => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      text += node.textContent;
+    } else if (node.nodeName === 'BR') {
+      text += '\n';
+    } else {
+      text += fragmentToText(node);
+    }
+  });
+  return text;
+}
+
+// === HIGHLIGHTS ===
+function renderHighlights() {
+  wrapper.querySelectorAll('.hl-rect').forEach(el => el.remove());
+  const entryIdx = pageToEntry[currentPage];
+  if (entryIdx === undefined) return;
+
+  DATA[entryIdx].highlights.forEach((hl, hi) => {
+    const div = document.createElement('div');
+    div.className = 'hl-rect' + (selectedRect === hi ? ' selected' : '');
+    div.dataset.hlIndex = hi;
+    div.style.left = hl.x + '%';
+    div.style.top = hl.y + '%';
+    div.style.width = hl.w + '%';
+    div.style.height = hl.h + '%';
+
+    const label = document.createElement('span');
+    label.className = 'hl-label';
+    label.textContent = 'Markierung ' + (hi + 1);
+    div.appendChild(label);
+
+    ['nw','n','ne','w','e','sw','s','se'].forEach(h => {
+      const handle = document.createElement('div');
+      handle.className = 'resize-handle ' + h;
+      handle.dataset.handle = h;
+      div.appendChild(handle);
+    });
+
+    div.addEventListener('mousedown', (e) => {
+      if (e.target.classList.contains('resize-handle')) {
+        e.stopPropagation();
+        startResize(e, hi, e.target.dataset.handle);
+        return;
+      }
+      e.stopPropagation();
+      selectRect(hi);
+      startDrag(e, hi);
+    });
+
+    wrapper.appendChild(div);
+  });
+}
+
+function selectRect(index) {
+  selectedRect = index;
+  document.getElementById('deleteBtn').style.display = index !== null ? 'inline-block' : 'none';
+  renderHighlights();
+}
+
+function deselectAll() {
+  selectedRect = null;
+  document.getElementById('deleteBtn').style.display = 'none';
+  renderHighlights();
+}
+
+// === DRAG ===
+function startDrag(e, hlIndex) {
+  const entryIdx = pageToEntry[currentPage];
+  const hl = DATA[entryIdx].highlights[hlIndex];
+  const startX = e.clientX, startY = e.clientY;
+  const origX = hl.x, origY = hl.y;
+
+  const onMove = (e) => {
+    const r = img.getBoundingClientRect();
+    hl.x = Math.max(0, Math.min(100 - hl.w, Math.round((origX + (e.clientX - startX) / r.width * 100) * 10) / 10));
+    hl.y = Math.max(0, Math.min(100 - hl.h, Math.round((origY + (e.clientY - startY) / r.height * 100) * 10) / 10));
+    renderHighlights();
+  };
+  const onUp = () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('mouseup', onUp);
+}
+
+// === RESIZE ===
+function startResize(e, hlIndex, handle) {
+  const entryIdx = pageToEntry[currentPage];
+  const hl = DATA[entryIdx].highlights[hlIndex];
+  const startX = e.clientX, startY = e.clientY;
+  const orig = { ...hl };
+
+  const onMove = (e) => {
+    const r = img.getBoundingClientRect();
+    const dx = (e.clientX - startX) / r.width * 100;
+    const dy = (e.clientY - startY) / r.height * 100;
+
+    if (handle.includes('w')) { hl.x = Math.max(0, Math.round((orig.x + dx) * 10) / 10); hl.w = Math.max(3, Math.round((orig.w - dx) * 10) / 10); }
+    if (handle.includes('e')) { hl.w = Math.max(3, Math.round((orig.w + dx) * 10) / 10); }
+    if (handle.includes('n')) { hl.y = Math.max(0, Math.round((orig.y + dy) * 10) / 10); hl.h = Math.max(3, Math.round((orig.h - dy) * 10) / 10); }
+    if (handle.includes('s')) { hl.h = Math.max(3, Math.round((orig.h + dy) * 10) / 10); }
+    renderHighlights();
+  };
+  const onUp = () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('mouseup', onUp);
+}
+
+// === DRAW ===
+function toggleDrawMode() {
+  drawMode = !drawMode;
+  document.getElementById('drawBtn').classList.toggle('active', drawMode);
+  wrapper.classList.toggle('draw-mode', drawMode);
+  if (drawMode) deselectAll();
+}
+
+wrapper.addEventListener('mousedown', (e) => {
+  if (!drawMode) { if (e.target === img) deselectAll(); return; }
+  if (e.target.closest('.hl-rect')) return;
+
+  const r = img.getBoundingClientRect();
+  isDrawing = true;
+  drawStart = { x: (e.clientX - r.left) / r.width * 100, y: (e.clientY - r.top) / r.height * 100 };
+  preview = document.createElement('div');
+  preview.className = 'draw-preview';
+  wrapper.appendChild(preview);
+});
+
+window.addEventListener('mousemove', (e) => {
+  if (!isDrawing || !preview) return;
+  const r = img.getBoundingClientRect();
+  const cx = Math.max(0, Math.min(100, (e.clientX - r.left) / r.width * 100));
+  const cy = Math.max(0, Math.min(100, (e.clientY - r.top) / r.height * 100));
+  preview.style.left = Math.min(drawStart.x, cx) + '%';
+  preview.style.top = Math.min(drawStart.y, cy) + '%';
+  preview.style.width = Math.abs(cx - drawStart.x) + '%';
+  preview.style.height = Math.abs(cy - drawStart.y) + '%';
+});
+
+window.addEventListener('mouseup', (e) => {
+  if (!isDrawing) return;
+  isDrawing = false;
+  if (preview) { preview.remove(); preview = null; }
+
+  const r = img.getBoundingClientRect();
+  const cx = Math.max(0, Math.min(100, (e.clientX - r.left) / r.width * 100));
+  const cy = Math.max(0, Math.min(100, (e.clientY - r.top) / r.height * 100));
+  const x = Math.min(drawStart.x, cx), y = Math.min(drawStart.y, cy);
+  const w = Math.abs(cx - drawStart.x), h = Math.abs(cy - drawStart.y);
+  if (w < 2 || h < 2) return;
+
+  const entryIdx = pageToEntry[currentPage];
+  if (entryIdx === undefined) { showToast('Diese Seite hat keine Transkription'); return; }
+
+  DATA[entryIdx].highlights.push({
+    x: Math.round(x * 10) / 10, y: Math.round(y * 10) / 10,
+    w: Math.round(w * 10) / 10, h: Math.round(h * 10) / 10
+  });
+  drawMode = false;
+  document.getElementById('drawBtn').classList.remove('active');
+  wrapper.classList.remove('draw-mode');
+  selectRect(DATA[entryIdx].highlights.length - 1);
+  updateTranscription();
+  showToast('Markierung hinzugefügt');
+});
+
+// === DELETE ===
+function deleteSelected() {
+  if (selectedRect === null) return;
+  const entryIdx = pageToEntry[currentPage];
+  if (entryIdx === undefined) return;
+  DATA[entryIdx].highlights.splice(selectedRect, 1);
+  selectedRect = null;
+  renderHighlights();
+  updateTranscription();
+  showToast('Markierung gelöscht');
+}
+
+// === EXPORT ===
+function exportData() {
+  DATA.forEach(e => {
+    if (e.highlights) {
+      e.highlights = e.highlights.map(hl => ({
+        x: Math.round(hl.x * 10) / 10, y: Math.round(hl.y * 10) / 10,
+        w: Math.round(hl.w * 10) / 10, h: Math.round(hl.h * 10) / 10
+      }));
+    }
+  });
+  const jsonStr = JSON.stringify(DATA, null, 2);
+
+  // Download data.json
+  const blob1 = new Blob([jsonStr], { type: 'application/json' });
+  const a1 = document.createElement('a');
+  a1.href = URL.createObjectURL(blob1);
+  a1.download = 'data.json';
+  a1.click();
+
+  // Download data.js (for file:// usage)
+  setTimeout(() => {
+    const jsContent = '// Auto-generated from data.json — nicht manuell bearbeiten\nwindow.ARTICLE_DATA = ' + jsonStr + ';\n';
+    const blob2 = new Blob([jsContent], { type: 'application/javascript' });
+    const a2 = document.createElement('a');
+    a2.href = URL.createObjectURL(blob2);
+    a2.download = 'data.js';
+    a2.click();
+    showToast('data.json + data.js heruntergeladen — beide in website/ ersetzen');
+  }, 500);
+}
+
+// === TOAST ===
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// === KEYBOARD ===
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) return;
+  if (e.key === 'ArrowLeft') goPage(-1);
+  if (e.key === 'ArrowRight') goPage(1);
+  if (e.key === 'Delete' || e.key === 'Backspace') deleteSelected();
+  if (e.key === 'Escape') { deselectAll(); drawMode = false; document.getElementById('drawBtn').classList.remove('active'); wrapper.classList.remove('draw-mode'); }
+  if (e.key === 'n' || e.key === 'N') toggleDrawMode();
+  if ((e.key === 'f' || e.key === 'F') && (e.metaKey || e.ctrlKey)) {
+    e.preventDefault();
+    document.getElementById('searchInput').focus();
+    document.getElementById('searchInput').select();
+  }
+});
+
+// Enter in search navigates to next match
+document.getElementById('searchInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') { e.preventDefault(); searchNav(e.shiftKey ? -1 : 1); }
+  if (e.key === 'Escape') { e.target.value = ''; doSearch(); e.target.blur(); }
+});
+</script>
+</body>
+</html>
