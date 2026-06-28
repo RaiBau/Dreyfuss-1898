@@ -712,8 +712,26 @@ function buildTimeline() {
 // === PAGES ===
 const pagesPanel = document.getElementById('pages-panel');
 
-// Create page containers with lazy loading
-for (let p = 1; p <= TOTAL_PAGES; p++) {
+// Anzeigereihenfolge: BT (13–20 Jan, Parlaments→Morgen→Abend), dann NPZ (Morgen→Beilage→Abend)
+const DISPLAY_ORDER = [
+  37,38,39,40,25,26,27,28,29,30,31,32,33,34,35,36,41,42,17,18,
+  19,20,21,22,23,24,55,56,57,58,43,44,45,46,47,48,49,50,51,52,
+  53,54,59,60,61,62,63,64,65,66,67,68,69,70,87,88,89,90,91,92,
+  93,94,95,96,97,98,71,72,73,74,75,76,77,78,99,100,101,102,103,104,
+  105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,
+  125,126,127,128,129,130,135,136,137,138,159,160,161,162,163,164,165,166,147,148,
+  149,150,151,152,153,154,155,156,157,158,171,172,173,174,175,176,177,178,199,200,
+  201,202,203,204,205,206,207,208,209,210,191,192,193,194,195,196,197,198,211,212,
+  213,214,215,216,217,218,219,220,221,222,243,244,245,246,247,248,249,250,79,80,
+  81,82,86,83,84,85,131,132,133,134,139,140,141,142,143,144,145,146,167,168,
+  169,170,179,180,181,182,186,183,184,185,187,188,189,190,227,228,229,230,223,224,
+  225,226,231,232,233,234,238,235,236,237,239,240,241,242,251,252,253,254,255,256,
+  257,258,1,2,3,4,9,10,11,12,13,14,15,16,5,6,7,8
+];
+
+// Create page containers in display order with lazy loading
+for (let i = 0; i < DISPLAY_ORDER.length; i++) {
+  const p = DISPLAY_ORDER[i];
   const container = document.createElement('div');
   container.className = 'page-container';
   container.id = `page-${p}`;
@@ -726,12 +744,16 @@ for (let p = 1; p <= TOTAL_PAGES; p++) {
 
   const label = document.createElement('div');
   label.className = 'page-number';
-  label.textContent = `${p} / ${TOTAL_PAGES}`;
+  label.textContent = `${i + 1} / ${TOTAL_PAGES}`;
 
   container.appendChild(img);
   container.appendChild(label);
   pagesPanel.appendChild(container);
 }
+
+// Lookup: pdfPage → Anzeigeposition (1-basiert)
+const pageToDisplayPos = {};
+DISPLAY_ORDER.forEach((p, i) => { pageToDisplayPos[p] = i + 1; });
 
 // === SCROLL TRACKING ===
 const indicator = document.getElementById('page-indicator');
@@ -748,7 +770,7 @@ const observer = new IntersectionObserver((entries) => {
       const page = parseInt(entry.target.dataset.page);
       if (page !== currentVisiblePage) {
         currentVisiblePage = page;
-        indicator.textContent = `Seite ${page} / ${TOTAL_PAGES}`;
+        indicator.textContent = `Seite ${pageToDisplayPos[page] || page} / ${TOTAL_PAGES}`;
         indicator.style.opacity = '1';
         clearTimeout(indicatorTimeout);
         indicatorTimeout = setTimeout(() => {
