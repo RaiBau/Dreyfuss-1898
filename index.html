@@ -305,20 +305,24 @@ body {
 .page-container {
   margin-bottom: 0.5rem;
   position: relative;
-  min-height: 800px;
 }
 
-/* Wrapper umschließt das Bild exakt — Bezug für die Markierungen */
+/* Wrapper umschließt das Bild exakt — Bezug für die Markierungen.
+   aspect-ratio reserviert die korrekte Höhe SOFORT (auch vor dem Laden),
+   damit beim Nachladen über langsame Netze nichts mehr verrutscht. */
 .page-image-wrap {
   position: relative;
   display: block;
   width: 100%;
+  aspect-ratio: 1241 / 1754;
   font-size: 0;   /* verhindert Inline-Whitespace unter dem Bild */
 }
 
 .page-container img {
   width: 100%;
+  height: 100%;
   display: block;
+  aspect-ratio: 1241 / 1754;
   border: 1px solid var(--border);
 }
 
@@ -804,16 +808,9 @@ function buildTimeline() {
       currentTransIdx = idx;
       showTranscription(idx);
       if (entry.pdfPage) {
-        setTimeout(() => {
-          const el = document.getElementById(`page-${entry.pdfPage}`);
-          if (el) {
-            // Zoom-korrektes Scrollen für Mobile + Desktop
-            const panel = document.getElementById('pages-panel');
-            panel.scrollTo({ top: el.offsetTop * zoomLevel, behavior: 'smooth' });
-          }
-          // Observer nach kurzem Delay wieder freigeben
-          setTimeout(() => { observerBlocked = false; }, 300);
-        }, 50);
+        // Etwaigen Zoom vor dem Sprung zurücksetzen
+        if (zoomLevel !== 1.0) setZoom(1.0);
+        jumpToPage(entry.pdfPage);
       } else {
         observerBlocked = false;
       }
@@ -1055,6 +1052,33 @@ function scrollToPage(page) {
     const targetTop = el.offsetTop * zoomLevel;
     panel.scrollTo({ top: targetTop, behavior: 'smooth' });
   }
+}
+
+// Zuverlässiger Sprung zur Zielseite — korrigiert sich selbst, während
+// lazy-geladene Bilder oberhalb nachladen und die Höhen verändern.
+function jumpToPage(page) {
+  const panel = document.getElementById('pages-panel');
+  observerBlocked = true;
+
+  const align = () => {
+    const el = document.getElementById(`page-${page}`);
+    if (!el) return;
+    // offsetTop wird bei jedem Aufruf neu ausgelesen -> selbstkorrigierend
+    panel.scrollTop = el.offsetTop * zoomLevel;
+  };
+
+  // Sofort ausrichten, dann mehrfach nachkorrigieren, bis das Layout
+  // (nachladende Bilder) stabil ist.
+  align();
+  let tries = 0;
+  const timer = setInterval(() => {
+    align();
+    if (++tries >= 10) {
+      clearInterval(timer);
+      // kurz warten, dann Observer wieder freigeben
+      setTimeout(() => { observerBlocked = false; }, 150);
+    }
+  }, 100);
 }
 
 function goToTimeline() {
