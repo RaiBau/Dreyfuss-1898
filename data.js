@@ -13,7 +13,9 @@ window.ARTICLE_DATA = [
     "dfg_page": 6,
     "highlights": [],
     "tlLabel": "",
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Berliner Tageblatt und Handels-Zeitung",
@@ -28,7 +30,9 @@ window.ARTICLE_DATA = [
     "dfg_page": 3,
     "highlights": [],
     "tlLabel": "",
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Berliner Tageblatt und Handels-Zeitung",
@@ -50,7 +54,9 @@ window.ARTICLE_DATA = [
       }
     ],
     "tlLabel": "Ein offener Brief Zolas an den Präsidenten Faure.",
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Berliner Tageblatt und Handels-Zeitung",
@@ -77,7 +83,9 @@ window.ARTICLE_DATA = [
       }
     ],
     "tlLabel": "Zola vor der Deputirtenkammer.",
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Berliner Tageblatt und Handels-Zeitung",
@@ -98,7 +106,9 @@ window.ARTICLE_DATA = [
       }
     ],
     "tlLabel": "Die Strafverfolgung gegen Zola.",
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Berliner Tageblatt und Handels-Zeitung",
@@ -120,7 +130,9 @@ window.ARTICLE_DATA = [
       }
     ],
     "tlLabel": "Paris, 14. Januar. (W.T.B.)",
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Berliner Tageblatt und Handels-Zeitung",
@@ -142,7 +154,9 @@ window.ARTICLE_DATA = [
       }
     ],
     "tlLabel": "△ Paris, 14. Januar. (Privat-Telegramm.)",
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Berliner Tageblatt und Handels-Zeitung",
@@ -175,7 +189,9 @@ window.ARTICLE_DATA = [
       }
     ],
     "tlLabel": "General Saussiers Abschied und die Dreyfusaffäre.",
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Berliner Tageblatt und Handels-Zeitung",
@@ -196,7 +212,9 @@ window.ARTICLE_DATA = [
       }
     ],
     "tlLabel": "Emile Zola gegen die Militärpartei.",
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Berliner Tageblatt und Handels-Zeitung",
@@ -210,7 +228,9 @@ window.ARTICLE_DATA = [
     "pdfPage": 148,
     "highlights": [],
     "tlLabel": "",
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Berliner Tageblatt und Handels-Zeitung",
@@ -224,7 +244,9 @@ window.ARTICLE_DATA = [
     "pdfPage": 172,
     "highlights": [],
     "tlLabel": "",
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Berliner Tageblatt und Handels-Zeitung",
@@ -251,7 +273,9 @@ window.ARTICLE_DATA = [
       }
     ],
     "tlLabel": "* Die Strafverfolgung gegen Emile Zola",
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Berliner Tageblatt und Handels-Zeitung",
@@ -278,7 +302,9 @@ window.ARTICLE_DATA = [
       }
     ],
     "tlLabel": "",
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Berliner Tageblatt und Handels-Zeitung",
@@ -292,7 +318,9 @@ window.ARTICLE_DATA = [
     "pdfPage": 212,
     "highlights": [],
     "tlLabel": "",
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Berliner Tageblatt und Handels-Zeitung",
@@ -319,7 +347,9 @@ window.ARTICLE_DATA = [
       }
     ],
     "tlLabel": "* Aus Paris ist vorläufig nichts Neues zu melden.",
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Neue Preußische Zeitung",
@@ -333,7 +363,9 @@ window.ARTICLE_DATA = [
     "pdfPage": 79,
     "highlights": [],
     "tlLabel": "",
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Neue Preußische Zeitung",
@@ -354,7 +386,9 @@ window.ARTICLE_DATA = [
       }
     ],
     "tlLabel": "",
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Neue Preußische Zeitung",
@@ -375,7 +409,9 @@ window.ARTICLE_DATA = [
       }
     ],
     "tlLabel": "",
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Neue Preußische Zeitung",
@@ -389,7 +425,9 @@ window.ARTICLE_DATA = [
     "pdfPage": 167,
     "highlights": [],
     "tlLabel": "",
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Neue Preußische Zeitung",
@@ -404,7 +442,9 @@ window.ARTICLE_DATA = [
     "dfg_page": 1,
     "highlights": [],
     "tlLabel": "",
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Neue Preußische Zeitung",
@@ -437,7 +477,9 @@ window.ARTICLE_DATA = [
       }
     ],
     "tlLabel": "",
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Neue Preußische Zeitung",
@@ -464,7 +506,9 @@ window.ARTICLE_DATA = [
       }
     ],
     "tlLabel": "",
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Neue Preußische Zeitung",
@@ -485,7 +529,9 @@ window.ARTICLE_DATA = [
       }
     ],
     "tlLabel": "",
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Neue Preußische Zeitung",
@@ -524,7 +570,9 @@ window.ARTICLE_DATA = [
       }
     ],
     "tlLabel": "",
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Neue Preußische Zeitung",
@@ -551,7 +599,9 @@ window.ARTICLE_DATA = [
       }
     ],
     "tlLabel": "",
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Neue Preußische Zeitung",
@@ -572,7 +622,9 @@ window.ARTICLE_DATA = [
       }
     ],
     "tlLabel": "Aus Frankreich",
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": "<p>Aus Frankreich</p><p><strong>Paris, 18. Januar. (W.I.B.) Heute Abend erneuerten sich die Kundgebungen der Studenten vor den Redaktionen der Zeitungen und dem Cercle militaire. Die Polizei trieb die Ruhestörer auseinander.</strong></p><p>Lyon, 18. Januar. (W.I.B.) Studenten veranstalteten vor der Synagoge und den geschlossenen Läden der Juden Kundgebungen. Als sie auseinander getrieben wurden, rotteten sie sich stets unter den üblichen Schmährufen von neuem zusammen. Ein berittener Polizist wurde verletzt. Um 11 Uhr Abends dauert die Kundgebung noch fort.</p><p><strong>Marseille, 18. Januar. (W.I.B.) Heute früh veranstalteten einige Studenten und andere Personen unter Pfuirufen auf Zola und dem Ruf: “Nieder mit den Juden!” eine Kundgebung. Die Polizei zerstreute die Theilnehmer. Zwei Verhaftungen wurden vorgenommen. Am Abend fand im Anschluß an eine Versammlung eine andere Kundgebung vor den Läden der Juden statt, die geschlossen waren. Die Polizei zerstreute die Manifestanten. Ungefähr 20 Personen wurden hierbei verhaftet.</strong></p><p>Paris, 19. Januar. (W.I.B.) In Bordeaux und Montpellier wurden gestern Abend antisemitische Kundgebungen veranstaltet; ernstere Zwischenfälle kamen nicht vor. In Nantes wurden einige Schaufenster von Juden gehörenden Geschäften zertrümmert; mehrere Personen wurden verhaftet.</p>"
   },
   {
     "newspaper": "Neue Preußische Zeitung",
@@ -593,7 +645,9 @@ window.ARTICLE_DATA = [
       }
     ],
     "tlLabel": "",
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Neue Preußische Zeitung",
@@ -620,7 +674,9 @@ window.ARTICLE_DATA = [
       }
     ],
     "tlLabel": "",
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Berliner Tageblatt und Handels-Zeitung",
@@ -648,7 +704,9 @@ window.ARTICLE_DATA = [
       }
     ],
     "tlLabel": "„Ich klage an!“",
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Berliner Tageblatt und Handels-Zeitung",
@@ -676,7 +734,9 @@ window.ARTICLE_DATA = [
         "h": 37.2
       }
     ],
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Berliner Tageblatt und Handels-Zeitung",
@@ -704,7 +764,9 @@ window.ARTICLE_DATA = [
         "h": 8.7
       }
     ],
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Berliner Tageblatt und Handels-Zeitung",
@@ -726,7 +788,9 @@ window.ARTICLE_DATA = [
         "h": 15.3
       }
     ],
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Neue Preußische Zeitung",
@@ -748,7 +812,9 @@ window.ARTICLE_DATA = [
         "h": 3.2
       }
     ],
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Berliner Tageblatt und Handels-Zeitung",
@@ -782,7 +848,9 @@ window.ARTICLE_DATA = [
         "h": 5
       }
     ],
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Berliner Tageblatt und Handels-Zeitung",
@@ -822,7 +890,9 @@ window.ARTICLE_DATA = [
         "h": 8.7
       }
     ],
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Berliner Tageblatt und Handels-Zeitung",
@@ -856,7 +926,9 @@ window.ARTICLE_DATA = [
         "h": 18.5
       }
     ],
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Berliner Tageblatt und Handels-Zeitung",
@@ -884,7 +956,9 @@ window.ARTICLE_DATA = [
         "h": 5.2
       }
     ],
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Berliner Tageblatt und Handels-Zeitung",
@@ -912,7 +986,9 @@ window.ARTICLE_DATA = [
         "h": 4.1
       }
     ],
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Neue Preußische Zeitung",
@@ -934,7 +1010,9 @@ window.ARTICLE_DATA = [
         "h": 12.8
       }
     ],
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Neue Preußische Zeitung",
@@ -962,7 +1040,9 @@ window.ARTICLE_DATA = [
         "h": 3.5
       }
     ],
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Neue Preußische Zeitung",
@@ -984,7 +1064,9 @@ window.ARTICLE_DATA = [
         "h": 7.5
       }
     ],
-    "dateSectionLabel": ""
+    "dateSectionLabel": "",
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Berliner Tageblatt und Handels-Zeitung",
@@ -1018,7 +1100,9 @@ window.ARTICLE_DATA = [
         "w": 25.7,
         "h": 52.8
       }
-    ]
+    ],
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Berliner Tageblatt und Handels-Zeitung",
@@ -1040,7 +1124,9 @@ window.ARTICLE_DATA = [
         "w": 23.1,
         "h": 25.4
       }
-    ]
+    ],
+    "manual": false,
+    "textFormatted": ""
   },
   {
     "newspaper": "Berliner Tageblatt und Handels-Zeitung",
@@ -1080,6 +1166,32 @@ window.ARTICLE_DATA = [
         "w": 24.7,
         "h": 3.4
       }
-    ]
+    ],
+    "manual": false,
+    "textFormatted": ""
+  },
+  {
+    "newspaper": "Neue Preussische Zeitung",
+    "date": "13. Januar 1898",
+    "weekday": "Donnerstag",
+    "edition": "",
+    "dfg_link": "",
+    "dfg_viewer_generic": false,
+    "remarks": "",
+    "tlLabel": "",
+    "dateSectionLabel": "",
+    "text": "Populärer Loewe Abend",
+    "pdfPage": 12,
+    "dfg_page": 0,
+    "highlights": [
+      {
+        "x": 66.3,
+        "y": 39.1,
+        "w": 30.2,
+        "h": 5.2
+      }
+    ],
+    "manual": false,
+    "textFormatted": ""
   }
 ];

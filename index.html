@@ -448,6 +448,8 @@ body {
   hyphens: auto;
 }
 
+.trans-text strong, .trans-text b { font-weight: 700; }
+
 .back-to-timeline {
   display: inline-flex;
   align-items: center;
@@ -746,8 +748,10 @@ function buildTimeline() {
     return new Date(+m[3], (months[m[2]]||1)-1, +m[1]).getTime();
   }
 
+  // Einträge mit Transkription UND manuell hinzugefügte Zeitleisten-Einträge
+  // (ohne Volltext) — beide werden nach Datum + Ausgabe sortiert.
   const withText = DATA.map((entry, idx) => ({...entry, idx}))
-    .filter(e => e.text && e.text.length > 50)
+    .filter(e => (e.text && e.text.length > 50) || e.manual)
     .sort((a, b) => {
       const dA = parseDate(a.date), dB = parseDate(b.date);
       if (dA !== dB) return dA - dB;
@@ -1003,10 +1007,14 @@ function showTranscription(idx) {
 
   const content = document.getElementById('trans-content');
 
-  // Format text into paragraphs
-  const paragraphs = entry.text.split(/\n\s*\n/).map(p =>
-    `<p>${p.replace(/\n/g, ' ').trim()}</p>`
-  ).join('');
+  // Format text into paragraphs. If the entry carries bold formatting
+  // (textFormatted, authored in the editor), render that; otherwise fall back
+  // to plain paragraphs built from the raw text.
+  const paragraphs = entry.textFormatted
+    ? entry.textFormatted
+    : entry.text.split(/\n\s*\n/).map(p =>
+        `<p>${p.replace(/\n/g, ' ').trim()}</p>`
+      ).join('');
 
   // Extract article title from first line
   const firstLine = entry.text.split('\n').find(l => l.trim().length > 5);

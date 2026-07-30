@@ -41,7 +41,80 @@ body {
   text-transform: uppercase;
   letter-spacing: 1px;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 }
+
+.tl-add-btn {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  line-height: 1;
+  border: 1px solid #444;
+  border-radius: 5px;
+  background: #1e1e40;
+  color: #e8c840;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.tl-add-btn:hover { background: #2a2820; border-color: #e8c840; }
+
+/* Manual timeline-entry modal */
+.manual-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.manual-modal {
+  background: #12122a;
+  border: 1px solid #444;
+  border-radius: 10px;
+  width: 380px;
+  max-width: 92vw;
+  max-height: 88vh;
+  overflow-y: auto;
+  padding: 18px 20px 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+.manual-modal h3 {
+  margin: 0 0 4px;
+  font-size: 0.95rem;
+  color: #e8c840;
+}
+.manual-modal .modal-hint {
+  font-size: 0.62rem;
+  color: #777;
+  margin: 0 0 10px;
+  line-height: 1.4;
+}
+.manual-modal textarea.form-input { min-height: 54px; resize: vertical; }
+.manual-modal .modal-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  justify-content: flex-end;
+}
+.manual-modal .modal-actions button {
+  padding: 6px 14px;
+  border-radius: 5px;
+  font-size: 0.75rem;
+  font-family: inherit;
+  cursor: pointer;
+  border: 1px solid #444;
+}
+.manual-modal .modal-save { background: #2c6e49; color: #fff; border-color: #2c6e49; }
+.manual-modal .modal-cancel { background: #2a2a4a; color: #ccc; }
 
 .timeline-list {
   flex: 1;
@@ -302,9 +375,45 @@ body {
   font-size: 0.88rem;
   line-height: 1.75;
   color: #bbb;
+  min-height: 40vh;
+  border-radius: 4px;
+  padding: 4px;
+  margin: -4px;
+  cursor: text;
 }
 
 .trans-text p { margin-bottom: 0.6rem; text-align: justify; }
+.trans-text strong, .trans-text b { font-weight: 700; color: #e6e6e6; }
+
+/* Formatting toolbar above the transcription text */
+.trans-toolbar {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin: 10px 0 6px;
+}
+.trans-toolbar .fmt-btn {
+  min-width: 28px;
+  height: 26px;
+  padding: 0 8px;
+  border: 1px solid #444;
+  border-radius: 5px;
+  background: #1e1e40;
+  color: #ccc;
+  font-size: 0.8rem;
+  font-family: inherit;
+  cursor: pointer;
+  line-height: 1;
+}
+.trans-toolbar .fmt-btn:hover { background: #2a2820; border-color: #e8c840; color: #e8c840; }
+.trans-toolbar .fmt-hint { font-size: 0.6rem; color: #666; }
+
+.trans-text[contenteditable="true"]:hover { background: rgba(232, 200, 64, 0.04); }
+.trans-text[contenteditable="true"]:focus {
+  outline: none;
+  background: rgba(232, 200, 64, 0.06);
+  box-shadow: 0 0 0 1px rgba(232, 200, 64, 0.4);
+}
 
 .trans-empty {
   color: #555;
@@ -356,9 +465,11 @@ body {
   border: 1px solid #e8c840;
   border-radius: 4px;
   padding: 10px;
-  min-height: 200px;
+  min-height: calc(100vh - 260px);
   white-space: pre-wrap;
   outline: none;
+  resize: vertical;
+  box-sizing: border-box;
 }
 
 .split-btn {
@@ -427,6 +538,7 @@ mark.current { background: #ff6b35; color: #fff; }
 
 .tl-item:hover .tl-edit-btn { display: inline; }
 .tl-item .tl-edit-btn:hover { color: #e8c840; }
+.tl-item .tl-delete-btn:hover { color: #ff6b6b; }
 
 .tl-edit-form input, .tl-edit-form textarea {
   width: 100%;
@@ -459,6 +571,71 @@ mark.current { background: #ff6b35; color: #fff; }
 
 .tl-edit-form .save-btn { background: #2c6e49; color: #fff; border-color: #2c6e49; }
 .tl-edit-form .cancel-btn { background: #2a2a4a; color: #ccc; }
+
+/* Date-section label editing */
+.tl-date-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 12px 4px 4px 4px;
+  gap: 4px;
+}
+
+.tl-date-label-row .tl-date-label-text {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #555;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tl-date-edit-btn {
+  display: none;
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  font-size: 0.65rem;
+  padding: 0 2px;
+}
+
+.tl-date-label-row:hover .tl-date-edit-btn { display: inline-block; }
+.tl-date-edit-btn:hover { color: #e8c840; }
+
+.tl-date-label-row input.form-input-inline {
+  flex: 1;
+  padding: 2px 6px;
+  background: #0d0d20;
+  border: 1px solid #e8c840;
+  border-radius: 3px;
+  color: #e0e0e0;
+  font-size: 0.65rem;
+  font-family: inherit;
+}
+
+/* Generic form fields (new entry / text edit) */
+.form-label {
+  font-size: 0.62rem;
+  color: #888;
+  display: block;
+  margin: 6px 0 2px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 4px 8px;
+  background: #0d0d20;
+  border: 1px solid #444;
+  border-radius: 4px;
+  color: #e0e0e0;
+  font-size: 0.75rem;
+  font-family: inherit;
+}
+
+.form-input:focus { border-color: #e8c840; outline: none; }
 
 /* Fixed split bar */
 #splitBarFixed {
@@ -504,6 +681,36 @@ mark.current { background: #ff6b35; color: #fff; }
   transition: opacity 0.3s;
 }
 .toast.show { opacity: 1; }
+
+/* Autosave recovery banner */
+#autosaveBanner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #6a4a10;
+  color: #ffe9a8;
+  padding: 8px 16px;
+  font-size: 0.78rem;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+  flex-wrap: wrap;
+}
+
+#autosaveBanner button {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  cursor: pointer;
+  font-family: inherit;
+  border: 1px solid #e8c840;
+}
+
+#autosaveBanner #autosaveRestoreBtn { background: #2c6e49; color: #fff; border-color: #2c6e49; }
+#autosaveBanner #autosaveDismissBtn { background: #2a2a4a; color: #ccc; border-color: #666; }
 </style>
 <script src="data.js"></script>
 </head>
@@ -513,7 +720,7 @@ mark.current { background: #ff6b35; color: #fff; }
 
   <!-- LEFT: TIMELINE -->
   <div class="timeline-panel">
-    <div class="timeline-header">Zeitleiste · Artikel</div>
+    <div class="timeline-header"><span>Zeitleiste · Artikel</span><button class="tl-add-btn" onclick="openManualEntryDialog()" title="Manuellen Zeitleisten-Eintrag hinzufügen">+</button></div>
     <div class="timeline-list" id="timelineList"></div>
   </div>
 
@@ -592,16 +799,8 @@ const img = document.getElementById('pageImg');
 
 // === LOAD DATA ===
 function initData(data) {
-  DATA = data.map(e => ({...e, highlights: e.highlights || [], tlLabel: e.tlLabel || ''}));
-  articlePages = [];
-  pageToEntry = {};
-  DATA.forEach((e, idx) => {
-    if (e.pdfPage && e.text && e.text.length > 50) {
-      articlePages.push({ page: e.pdfPage, idx: idx });
-      pageToEntry[e.pdfPage] = idx;
-    }
-  });
-  articlePages.sort((a, b) => a.page - b.page);
+  DATA = data.map(e => ({...e, highlights: e.highlights || [], tlLabel: e.tlLabel || '', dateSectionLabel: e.dateSectionLabel || '', manual: e.manual || false, textFormatted: e.textFormatted || ''}));
+  rebuildIndexes();
   document.getElementById('timelineList').innerHTML = '';
   buildTimeline();
   if (articlePages.length > 0) {
@@ -639,14 +838,91 @@ function loadFile(event) {
 // Use data.js (script tag, works with file://) or fetch as fallback
 if (window.ARTICLE_DATA) {
   initData(window.ARTICLE_DATA);
+  checkForUnsavedAutosave(window.ARTICLE_DATA);
 } else {
   fetch('data.json')
     .then(r => { if (!r.ok) throw new Error('data.json nicht gefunden'); return r.json(); })
-    .then(data => initData(data))
+    .then(data => { initData(data); checkForUnsavedAutosave(data); })
     .catch(e => {
       document.getElementById('transContent').innerHTML =
         '<div class="trans-empty">Fehler: ' + e.message + '<br>data.js nicht gefunden und kein Server aktiv.<br>Stellen Sie sicher, dass data.js im selben Ordner wie editor.html liegt.</div>';
     });
+}
+
+// === AUTOSAVE SAFETY NET (localStorage) ===
+// Every change is mirrored into the browser's localStorage. If editor.html is
+// reopened and the freshly loaded data.js does NOT match the last autosaved
+// state, a banner offers to restore the newer (unsaved) version — so forgetting
+// to replace data.json/data.js after "💾 Speichern" can no longer silently lose work.
+const AUTOSAVE_KEY = 'dreyfusEditorAutosave_v1';
+
+function autosaveToLocalStorage() {
+  try {
+    localStorage.setItem(AUTOSAVE_KEY, JSON.stringify({ data: DATA, ts: Date.now() }));
+  } catch (e) {
+    // localStorage voll oder nicht verfügbar (z.B. privater Modus) — kein Blocker
+  }
+}
+
+function checkForUnsavedAutosave(loadedData) {
+  let saved;
+  try {
+    const raw = localStorage.getItem(AUTOSAVE_KEY);
+    if (!raw) return;
+    saved = JSON.parse(raw);
+  } catch (e) { return; }
+  if (!saved || !Array.isArray(saved.data)) return;
+
+  const savedStr = JSON.stringify(saved.data);
+  const loadedStr = JSON.stringify(loadedData);
+  if (savedStr === loadedStr) {
+    // Bereits identisch (z.B. data.js wurde korrekt ersetzt) — Autosave aufräumen
+    localStorage.removeItem(AUTOSAVE_KEY);
+    return;
+  }
+
+  const dtStr = new Date(saved.ts).toLocaleString('de-DE');
+  showAutosaveBanner(dtStr, saved.data);
+}
+
+function showAutosaveBanner(dtStr, savedData) {
+  const old = document.getElementById('autosaveBanner');
+  if (old) old.remove();
+
+  const banner = document.createElement('div');
+  banner.id = 'autosaveBanner';
+  banner.innerHTML =
+    '<span>⚠ Nicht exportierter Bearbeitungsstand vom ' + dtStr + ' gefunden — stimmt nicht mit der geladenen data.js überein.</span>' +
+    '<button id="autosaveRestoreBtn">Wiederherstellen</button>' +
+    '<button id="autosaveDismissBtn">Verwerfen</button>';
+  document.body.appendChild(banner);
+
+  document.getElementById('autosaveRestoreBtn').onclick = () => {
+    initData(savedData);
+    banner.remove();
+    showToast('Bearbeitungsstand wiederhergestellt — bitte danach 💾 Speichern nicht vergessen');
+  };
+  document.getElementById('autosaveDismissBtn').onclick = () => {
+    localStorage.removeItem(AUTOSAVE_KEY);
+    banner.remove();
+  };
+}
+
+// Rebuild the page/entry indexes from DATA. Article entries (with transcribed
+// text) AND manual timeline entries both appear in the timeline; only real
+// article entries are bound into pageToEntry, so manual entries never override
+// the transcription shown for a scanned page.
+function rebuildIndexes() {
+  articlePages = [];
+  pageToEntry = {};
+  DATA.forEach((e, idx) => {
+    const isArticle = e.text && e.text.length > 50;
+    if (e.pdfPage && (isArticle || e.manual)) {
+      articlePages.push({ page: e.pdfPage, idx: idx });
+      if (isArticle && !e.manual) pageToEntry[e.pdfPage] = idx;
+    }
+  });
+  articlePages.sort((a, b) => a.page - b.page);
 }
 
 // === TIMELINE ===
@@ -659,26 +935,37 @@ function buildTimeline() {
 
     if (entry.date !== currentDate) {
       currentDate = entry.date;
-      const label = document.createElement('div');
-      label.className = 'tl-date-label';
-      label.textContent = entry.weekday + ', ' + entry.date;
-      list.appendChild(label);
+      const defaultLabel = (entry.weekday ? entry.weekday + ', ' : '') + entry.date;
+      const row = document.createElement('div');
+      row.className = 'tl-date-label-row';
+      row.dataset.dateIdx = idx;
+      row.innerHTML =
+        '<span class="tl-date-label-text">' + escapeHtml(entry.dateSectionLabel || defaultLabel).replace(/<br>/g, ' ') + '</span>' +
+        '<button class="tl-date-edit-btn" onclick="event.stopPropagation(); startDateLabelEdit(' + idx + ', this.closest(\'.tl-date-label-row\'))">✎</button>';
+      list.appendChild(row);
     }
 
-    const firstLine = entry.text.split('\n').find(l => l.trim().length > 10);
+    const firstLine = (entry.text || '').split('\n').find(l => l.trim().length > 10);
     const defaultTitle = firstLine ? firstLine.trim().substring(0, 70) : entry.edition;
     const displayTitle = entry.tlLabel || defaultTitle;
+    const hlCount = (entry.highlights || []).length;
+    const pageLine = 'PDF-Seite ' + page +
+      (hlCount > 0 ? ' · ' + hlCount + ' Markierung' + (hlCount !== 1 ? 'en' : '') : '');
 
     const item = document.createElement('div');
     item.className = 'tl-item';
     item.dataset.page = page;
     item.dataset.idx = idx;
     item.innerHTML =
+      '<button class="tl-edit-btn tl-delete-btn" onclick="event.stopPropagation(); deleteTimelineEntry(' + idx + ')" title="Eintrag löschen">🗑</button>' +
       '<button class="tl-edit-btn" onclick="event.stopPropagation(); startTlEdit(' + idx + ', this.closest(\'.tl-item\'))">✎</button>' +
       '<div class="tl-newspaper">' + entry.newspaper.substring(0, 30) + '</div>' +
       '<div class="tl-title">' + escapeHtml(displayTitle).replace(/<br>/g, ' ') + (displayTitle.length > 70 ? '…' : '') + '</div>' +
-      '<div class="tl-meta">' + entry.edition.split(',')[0] + '</div>' +
-      '<div class="tl-page">PDF-Seite ' + page + ' · ' + entry.highlights.length + ' Markierung' + (entry.highlights.length !== 1 ? 'en' : '') + '</div>';
+      '<div class="tl-meta">' + (entry.edition || '').split(',')[0] + '</div>' +
+      '<div class="tl-page">' + pageLine + '</div>';
+    // Clicking any entry — including manual ones — jumps to its PDF page.
+    // goPageTo updates the transcription pane too (shows the article there, or
+    // "kein Dreyfus-Artikel" if the page has none).
     item.addEventListener('click', () => goPageTo(page));
     list.appendChild(item);
   });
@@ -719,10 +1006,179 @@ function saveTlEdit(idx) {
   buildTimeline();
   updateTimelineActive();
   updateTranscription();
+  autosaveToLocalStorage();
   showToast('Zeitleiste aktualisiert');
 }
 
 function cancelTlEdit() {
+  document.getElementById('timelineList').innerHTML = '';
+  buildTimeline();
+  updateTimelineActive();
+}
+
+// === MANUAL TIMELINE ENTRY (+) ===
+const MANUAL_MONTHS_DE = {
+  'januar': 0, 'februar': 1, 'märz': 2, 'maerz': 2, 'april': 3, 'mai': 4,
+  'juni': 5, 'juli': 6, 'august': 7, 'september': 8, 'oktober': 9,
+  'november': 10, 'dezember': 11
+};
+const MANUAL_WEEKDAYS_DE = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+
+// Derive the German weekday from a date like "13. Januar 1898". '' if unparseable.
+function weekdayFromGermanDate(dateStr) {
+  const m = (dateStr || '').trim().match(/^(\d{1,2})\.?\s+([A-Za-zäöüÄÖÜ]+)\s+(\d{4})$/);
+  if (!m) return '';
+  const day = parseInt(m[1], 10);
+  const mon = MANUAL_MONTHS_DE[m[2].toLowerCase()];
+  const year = parseInt(m[3], 10);
+  if (mon === undefined) return '';
+  const d = new Date(year, mon, day);
+  // reject invalid dates like 31. Februar (JS would roll them over)
+  if (d.getFullYear() !== year || d.getMonth() !== mon || d.getDate() !== day) return '';
+  return MANUAL_WEEKDAYS_DE[d.getDay()];
+}
+
+function openManualEntryDialog() {
+  if (document.getElementById('manualModalOverlay')) return;
+  const overlay = document.createElement('div');
+  overlay.className = 'manual-modal-overlay';
+  overlay.id = 'manualModalOverlay';
+  overlay.innerHTML =
+    '<div class="manual-modal" onclick="event.stopPropagation()">' +
+      '<h3>Zeitleisten-Eintrag hinzufügen</h3>' +
+      '<p class="modal-hint">Wird nach PDF-Seite in die Zeitleiste einsortiert. ' +
+        'Datum im Format „13. Januar 1898“ — der Wochentag wird daraus berechnet.</p>' +
+      '<label class="form-label">Titel *</label>' +
+      '<input type="text" class="form-input" id="manualTitle">' +
+      '<label class="form-label">Anmerkung</label>' +
+      '<textarea class="form-input" id="manualRemarks"></textarea>' +
+      '<label class="form-label">PDF-Seite * (1–' + TOTAL + ')</label>' +
+      '<input type="number" class="form-input" id="manualPdfPage" min="1" max="' + TOTAL + '">' +
+      '<label class="form-label">Zeitungsname *</label>' +
+      '<input type="text" class="form-input" id="manualNewspaper">' +
+      '<label class="form-label">Datum * (z.B. 13. Januar 1898)</label>' +
+      '<input type="text" class="form-input" id="manualDate">' +
+      '<label class="form-label">Ausgabe (z.B. Morgen-Ausgabe)</label>' +
+      '<input type="text" class="form-input" id="manualEdition">' +
+      '<div class="modal-actions">' +
+        '<button class="modal-cancel" onclick="closeManualEntryDialog()">Abbrechen</button>' +
+        '<button class="modal-save" onclick="saveManualEntry()">Hinzufügen</button>' +
+      '</div>' +
+    '</div>';
+  overlay.addEventListener('click', closeManualEntryDialog);
+  overlay.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeManualEntryDialog(); });
+  document.body.appendChild(overlay);
+  document.getElementById('manualTitle').focus();
+}
+
+function closeManualEntryDialog() {
+  const overlay = document.getElementById('manualModalOverlay');
+  if (overlay) overlay.remove();
+}
+
+function saveManualEntry() {
+  const title = document.getElementById('manualTitle').value.trim();
+  const remarks = document.getElementById('manualRemarks').value.trim();
+  const pdfPageRaw = document.getElementById('manualPdfPage').value.trim();
+  const newspaper = document.getElementById('manualNewspaper').value.trim();
+  const date = document.getElementById('manualDate').value.trim();
+  const edition = document.getElementById('manualEdition').value.trim();
+
+  if (!title) { showToast('Bitte einen Titel eingeben'); return; }
+  if (!newspaper) { showToast('Bitte einen Zeitungsnamen eingeben'); return; }
+  if (!date) { showToast('Bitte ein Datum eingeben'); return; }
+  const pdfPage = parseInt(pdfPageRaw, 10);
+  if (!pdfPageRaw || isNaN(pdfPage) || pdfPage < 1 || pdfPage > TOTAL) {
+    showToast('Bitte eine gültige PDF-Seite (1–' + TOTAL + ') eingeben'); return;
+  }
+  const weekday = weekdayFromGermanDate(date);
+  if (!weekday) {
+    showToast('Datum nicht erkannt — bitte Format „13. Januar 1898“ verwenden'); return;
+  }
+
+  DATA.push({
+    newspaper: newspaper,
+    date: date,
+    weekday: weekday,
+    edition: edition,
+    dfg_link: '',
+    dfg_viewer_generic: false,
+    remarks: remarks,
+    text: '',
+    pdfPage: pdfPage,
+    dfg_page: null,
+    highlights: [],
+    tlLabel: title,
+    dateSectionLabel: '',
+    manual: true
+  });
+
+  rebuildIndexes();
+  document.getElementById('timelineList').innerHTML = '';
+  buildTimeline();
+  updateTimelineActive();
+  autosaveToLocalStorage();
+  closeManualEntryDialog();
+  showToast('Eintrag „' + title + '“ hinzugefügt (Seite ' + pdfPage + ')');
+}
+
+// === EXPLICIT ENTRY DELETION ===
+// Manual, user-triggered removal of an entire timeline entry (with
+// confirmation). This replaces any automatic "empty = delete" detection —
+// deleting a highlight or clearing text alone never removes anything on its
+// own; only this button does.
+function deleteTimelineEntry(idx) {
+  const entry = DATA[idx];
+  if (!entry) return;
+
+  const firstLine = (entry.text || '').split('\n').find(l => l.trim().length > 10);
+  const label = entry.tlLabel || (firstLine ? firstLine.trim().substring(0, 60) : entry.edition) || '(ohne Titel)';
+  const confirmMsg = 'Eintrag „' + label + '" (Seite ' + entry.pdfPage + ') endgültig löschen?\n' +
+    'Text und Markierungen dieses Eintrags gehen dabei verloren.';
+  if (!window.confirm(confirmMsg)) return;
+
+  // Aus DATA entfernen und Indexe neu aufbauen
+  DATA.splice(idx, 1);
+  rebuildIndexes();
+
+  document.getElementById('timelineList').innerHTML = '';
+  buildTimeline();
+  updateTimelineActive();
+  updateTranscription();
+  renderHighlights();
+  autosaveToLocalStorage();
+  showToast('Eintrag gelöscht');
+}
+
+// === DATE-SECTION LABEL EDITING ===
+function startDateLabelEdit(idx, rowEl) {
+  const entry = DATA[idx];
+  const defaultLabel = entry.weekday + ', ' + entry.date;
+  const current = entry.dateSectionLabel || defaultLabel;
+  rowEl.innerHTML =
+    '<input type="text" class="form-input-inline" id="dateLabelInput" value="' + escapeAttr(current) + '">' +
+    '<button class="tl-date-edit-btn" style="display:inline-block" onclick="event.stopPropagation(); saveDateLabelEdit(' + idx + ')">✓</button>' +
+    '<button class="tl-date-edit-btn" style="display:inline-block" onclick="event.stopPropagation(); cancelDateLabelEdit()">✕</button>';
+  const inputEl = document.getElementById('dateLabelInput');
+  inputEl.focus();
+  inputEl.select();
+  inputEl.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); saveDateLabelEdit(idx); }
+    if (e.key === 'Escape') { e.preventDefault(); cancelDateLabelEdit(); }
+  });
+}
+
+function saveDateLabelEdit(idx) {
+  const val = document.getElementById('dateLabelInput').value.trim();
+  DATA[idx].dateSectionLabel = val;
+  document.getElementById('timelineList').innerHTML = '';
+  buildTimeline();
+  updateTimelineActive();
+  autosaveToLocalStorage();
+  showToast('Überschrift aktualisiert');
+}
+
+function cancelDateLabelEdit() {
   document.getElementById('timelineList').innerHTML = '';
   buildTimeline();
   updateTimelineActive();
@@ -771,7 +1227,8 @@ function updateTranscription() {
   if (entryIdx === undefined) {
     title.textContent = 'Transkription';
     info.innerHTML = '<div class="no-article">Seite ' + currentPage + ' — kein Dreyfus-Artikel</div>';
-    content.innerHTML = '<div class="trans-empty">Auf dieser Seite wurde kein<br>Dreyfus-Artikel transkribiert.<br><br>Wählen Sie einen Artikel in der<br>Zeitleiste links aus.</div>';
+    content.innerHTML = '<div class="trans-empty">Auf dieser Seite wurde kein<br>Dreyfus-Artikel transkribiert.<br><br>Wählen Sie einen Artikel in der<br>Zeitleiste links aus.</div>' +
+      '<div style="text-align:center;margin-top:16px"><button class="split-btn" onclick="startNewEntry()">+ Text für Seite ' + currentPage + ' erfassen</button></div>';
     document.getElementById('hlCount').textContent = '';
     document.getElementById('splitBarFixed').style.display = 'none';
     document.getElementById('splitBarFixed').innerHTML = '';
@@ -784,9 +1241,11 @@ function updateTranscription() {
 
   const firstLine = entry.text.split('\n').find(l => l.trim().length > 10);
   const artTitle = firstLine ? firstLine.trim() : entry.edition;
-  const paragraphs = entry.text.split(/\n\s*\n/)
-    .map(p => '<p>' + p.replace(/\n/g, ' ').trim() + '</p>')
-    .join('');
+  const paragraphs = entry.textFormatted
+    ? entry.textFormatted
+    : entry.text.split(/\n\s*\n/)
+        .map(p => '<p>' + p.replace(/\n/g, ' ').trim() + '</p>')
+        .join('');
 
   const dfgHtml = entry.dfg_link
     ? '<div style="margin:8px 0 12px;"><a href="' + entry.dfg_link + '" target="_blank" rel="noopener" style="color:#6ab0f3;font-size:0.72rem;text-decoration:none;border:1px solid #3a5070;padding:4px 10px;border-radius:4px;display:inline-block;">↗ DFG-Viewer — Original</a></div>'
@@ -819,14 +1278,147 @@ function updateTranscription() {
     '<div class="trans-edition">' + entry.edition + '</div>' +
     dfgHtml +
     (entry.remarks ? '<div class="trans-remarks">' + entry.remarks + '</div>' : '') +
-    '<div class="trans-text" id="transText">' + paragraphs + '</div>';
+    '<div class="trans-toolbar">' +
+      '<button class="fmt-btn" onmousedown="event.preventDefault()" onclick="applyBold()" title="Fett — markieren und klicken (Cmd/Strg+B)"><b>F</b></button>' +
+      '<span class="fmt-hint">Text markieren, dann Fett (Cmd/Strg+B)</span>' +
+    '</div>' +
+    '<div class="trans-text" id="transText" contenteditable="true" spellcheck="false" title="Klicken und Text direkt korrigieren">' + paragraphs + '</div>';
 
   document.getElementById('hlCount').textContent =
     entry.highlights.length + ' Markierung' + (entry.highlights.length !== 1 ? 'en' : '');
 
+  attachTransTextEditing(entryIdx);
+
   // Re-apply search if active
   const q = document.getElementById('searchInput').value.trim();
   if (q.length >= 3) doSearch();
+}
+
+// === DIRECT INLINE EDITING OF THE READING VIEW ===
+// Instead of a separate edit mode, #transText itself is contenteditable.
+// Changes are converted back to plain text and written into DATA continuously.
+let transTextSaveTimer = null;
+
+function attachTransTextEditing(entryIdx) {
+  const el = document.getElementById('transText');
+  if (!el) return;
+
+  el.addEventListener('input', () => {
+    clearTimeout(transTextSaveTimer);
+    transTextSaveTimer = setTimeout(() => persistTransText(entryIdx, false), 600);
+  });
+
+  el.addEventListener('blur', () => {
+    clearTimeout(transTextSaveTimer);
+    persistTransText(entryIdx, true);
+  });
+
+  // Cmd/Ctrl+B → bold. Handled by us (not the browser default) so it stays a
+  // single, immediately-persisted toggle.
+  el.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && (e.key === 'b' || e.key === 'B')) {
+      e.preventDefault();
+      applyBold();
+    }
+  });
+}
+
+// Persist the current reading-view edit into DATA: plain `text` (unchanged
+// semantics — feeds word count, search, title) plus optional `textFormatted`
+// (display HTML carrying only <strong>). textFormatted is stored only when it
+// actually contains bold, so unformatted entries stay clean.
+function persistTransText(entryIdx, rebuildTimeline) {
+  if (pageToEntry[currentPage] !== entryIdx) return; // page changed meanwhile
+  const el = document.getElementById('transText');
+  if (!el) return;
+  DATA[entryIdx].text = htmlContainerToText(el);
+  const formatted = htmlContainerToFormatted(el);
+  DATA[entryIdx].textFormatted = formatted.indexOf('<strong>') !== -1 ? formatted : '';
+  autosaveToLocalStorage();
+  if (rebuildTimeline) {
+    document.getElementById('timelineList').innerHTML = '';
+    buildTimeline();
+    updateTimelineActive();
+  }
+}
+
+// Toggle bold on the current selection inside #transText, then persist.
+function applyBold() {
+  const el = document.getElementById('transText');
+  if (!el) return;
+  el.focus();
+  document.execCommand('bold', false, null);
+  const entryIdx = pageToEntry[currentPage];
+  if (entryIdx !== undefined) persistTransText(entryIdx, false);
+}
+
+// Convert the edited paragraph HTML back into plain text (paragraphs separated by blank line)
+function htmlContainerToText(container) {
+  const parts = [];
+  container.childNodes.forEach(node => {
+    if (node.nodeType === Node.ELEMENT_NODE && (node.tagName === 'P' || node.tagName === 'DIV')) {
+      const t = fragmentToText(node).replace(/ /g, ' ').trim();
+      if (t) parts.push(t);
+    } else if (node.nodeType === Node.TEXT_NODE) {
+      const t = node.textContent.replace(/ /g, ' ').trim();
+      if (t) parts.push(t);
+    }
+    // stray top-level <br> elements are ignored — they don't carry paragraph content
+  });
+  return parts.join('\n\n');
+}
+
+// === FORMATTED (BOLD) SERIALIZATION ===
+// Turn the edited reading view into display HTML that keeps ONLY bold
+// (<strong>) plus paragraph structure. Everything else — search <mark>, stray
+// spans, inline styles — is unwrapped to its text. Mirrors the same paragraph
+// splitting as the plain-text path so the two stay visually in sync.
+function escHtmlBasic(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function isBoldNode(node) {
+  if (node.nodeType !== Node.ELEMENT_NODE) return false;
+  if (node.nodeName === 'B' || node.nodeName === 'STRONG') return true;
+  const fw = node.style && node.style.fontWeight;
+  if (!fw) return false;
+  return fw === 'bold' || fw === 'bolder' || parseInt(fw, 10) >= 600;
+}
+
+function serializeInlineFormatted(node, insideBold) {
+  let out = '';
+  node.childNodes.forEach(ch => {
+    if (ch.nodeType === Node.TEXT_NODE) {
+      out += escHtmlBasic(ch.textContent);
+    } else if (ch.nodeName === 'BR') {
+      out += ' ';
+    } else if (isBoldNode(ch)) {
+      const inner = serializeInlineFormatted(ch, true);
+      if (insideBold) out += inner;                       // avoid nested <strong>
+      else out += inner.trim() ? '<strong>' + inner + '</strong>' : inner;
+    } else {
+      out += serializeInlineFormatted(ch, insideBold);    // unwrap span/mark/i/…
+    }
+  });
+  return out;
+}
+
+function htmlContainerToFormatted(container) {
+  const paras = [];
+  container.childNodes.forEach(node => {
+    if (node.nodeType === Node.ELEMENT_NODE && (node.tagName === 'P' || node.tagName === 'DIV')) {
+      const html = serializeInlineFormatted(node, false).replace(/ /g, ' ').trim();
+      if (html) paras.push('<p>' + html + '</p>');
+    } else if (node.nodeType === Node.TEXT_NODE) {
+      const t = escHtmlBasic(node.textContent).replace(/ /g, ' ').trim();
+      if (t) paras.push('<p>' + t + '</p>');
+    } else if (isBoldNode(node)) {
+      const inner = serializeInlineFormatted(node, true).trim();
+      if (inner) paras.push('<p><strong>' + inner + '</strong></p>');
+    }
+  });
+  // Merge bold runs execCommand may have split: "</strong><strong>" → nothing
+  return paras.join('').replace(/<\/strong>(\s*)<strong>/g, '$1');
 }
 
 // === TEXT SEARCH ===
@@ -856,8 +1448,11 @@ function doSearch() {
     } else if (textEl) {
       const entryIdx = pageToEntry[currentPage];
       if (entryIdx !== undefined) {
-        textEl.innerHTML = DATA[entryIdx].text.split(/\n\s*\n/)
-          .map(p => '<p>' + p.replace(/\n/g, ' ').trim() + '</p>').join('');
+        const e = DATA[entryIdx];
+        textEl.innerHTML = e.textFormatted
+          ? e.textFormatted
+          : e.text.split(/\n\s*\n/)
+              .map(p => '<p>' + p.replace(/\n/g, ' ').trim() + '</p>').join('');
       }
     }
     return;
@@ -951,6 +1546,82 @@ function cancelSplit() {
   updateTranscription();
 }
 
+// === NEW ENTRY (page currently has no transcription) ===
+function findNearestMeta(page) {
+  let best = null;
+  articlePages.forEach(a => { if (a.page <= page && (!best || a.page > best.page)) best = a; });
+  return best ? DATA[best.idx] : null;
+}
+
+function startNewEntry() {
+  const meta = findNearestMeta(currentPage) || {};
+  const content = document.getElementById('transContent');
+  document.getElementById('splitBarFixed').style.display = 'none';
+
+  content.innerHTML =
+    '<div class="split-toolbar">' +
+      '<button class="split-confirm" onclick="saveNewEntry()">💾 Anlegen</button>' +
+      '<button class="split-cancel" onclick="cancelNewEntry()">Abbrechen</button>' +
+      '<div class="split-hint">Neuen Artikel-Eintrag für Seite ' + currentPage + ' anlegen.</div>' +
+    '</div>' +
+    '<label class="form-label">Zeitung</label>' +
+    '<input type="text" class="form-input" id="newEntryNewspaper" value="' + escapeAttr(meta.newspaper || '') + '">' +
+    '<label class="form-label">Datum</label>' +
+    '<input type="text" class="form-input" id="newEntryDate" value="' + escapeAttr(meta.date || '') + '">' +
+    '<label class="form-label">Wochentag</label>' +
+    '<input type="text" class="form-input" id="newEntryWeekday" value="' + escapeAttr(meta.weekday || '') + '">' +
+    '<label class="form-label">Ausgabe</label>' +
+    '<input type="text" class="form-input" id="newEntryEdition" value="' + escapeAttr(meta.edition || '') + '">' +
+    '<label class="form-label">Text</label>' +
+    '<textarea class="trans-text-editable" id="newEntryText" style="width:100%"></textarea>';
+
+  document.getElementById('newEntryNewspaper').focus();
+}
+
+function saveNewEntry() {
+  const newspaper = document.getElementById('newEntryNewspaper').value.trim();
+  const date = document.getElementById('newEntryDate').value.trim();
+  const weekday = document.getElementById('newEntryWeekday').value.trim();
+  const edition = document.getElementById('newEntryEdition').value.trim();
+  const text = document.getElementById('newEntryText').value;
+
+  if (!text.trim()) { showToast('Bitte Text eingeben'); return; }
+
+  const newEntry = {
+    newspaper: newspaper || '(unbekannt)',
+    date: date,
+    weekday: weekday,
+    edition: edition,
+    dfg_link: '',
+    dfg_viewer_generic: false,
+    remarks: '',
+    tlLabel: '',
+    dateSectionLabel: '',
+    text: text,
+    pdfPage: currentPage,
+    dfg_page: 0,
+    highlights: []
+  };
+  DATA.push(newEntry);
+
+  const newIdx = DATA.length - 1;
+  articlePages.push({ page: currentPage, idx: newIdx });
+  articlePages.sort((a, b) => a.page - b.page);
+  pageToEntry[currentPage] = newIdx;
+
+  document.getElementById('timelineList').innerHTML = '';
+  buildTimeline();
+  updateTimelineActive();
+  updateTranscription();
+  renderHighlights();
+  autosaveToLocalStorage();
+  showToast('Neuer Eintrag angelegt');
+}
+
+function cancelNewEntry() {
+  updateTranscription();
+}
+
 function executeSplit() {
   const entryIdx = pageToEntry[currentPage];
   if (entryIdx === undefined) return;
@@ -983,11 +1654,13 @@ function executeSplit() {
 
   const entry = DATA[entryIdx];
   entry.text = textBefore;
+  entry.textFormatted = ''; // split rebuilds plain text — drop stale bold markup
 
   // Always put on next page
   const targetEntryIdx = pageToEntry[nextPage];
   if (targetEntryIdx !== undefined) {
     DATA[targetEntryIdx].text = textAfter + '\n\n' + DATA[targetEntryIdx].text;
+    DATA[targetEntryIdx].textFormatted = '';
     showToast('Text geteilt → Seite ' + nextPage);
   } else {
     const newEntry = {
@@ -1000,6 +1673,7 @@ function executeSplit() {
       remarks: 'Fortsetzung von Seite ' + currentPage,
       tlLabel: '',
       text: textAfter,
+      textFormatted: '',
       pdfPage: nextPage,
       dfg_page: (entry.dfg_page || 0) + 1,
       highlights: []
@@ -1019,6 +1693,7 @@ function executeSplit() {
   splitMode = false;
   updateTranscription();
   renderHighlights();
+  autosaveToLocalStorage();
 }
 
 // Move entire text of current page's entry to the next page
@@ -1039,8 +1714,10 @@ function pushToNextPage() {
   const nextEntryIdx = pageToEntry[nextPage];
   if (nextEntryIdx !== undefined) {
     DATA[nextEntryIdx].text = textToMove + '\n\n' + DATA[nextEntryIdx].text;
+    DATA[nextEntryIdx].textFormatted = '';
     // Mark old entry as empty
     entry.text = '';
+    entry.textFormatted = '';
     entry.pdfPage = null;
   } else {
     // Re-assign this entry to next page
@@ -1052,6 +1729,7 @@ function pushToNextPage() {
 
   document.getElementById('timelineList').innerHTML = '';
   buildTimeline();
+  autosaveToLocalStorage();
   showToast('Text verschoben → Seite ' + nextPage);
   goPageTo(nextPage);
 }
@@ -1137,7 +1815,7 @@ function startDrag(e, hlIndex) {
     hl.y = Math.max(0, Math.min(100 - hl.h, Math.round((origY + (e.clientY - startY) / r.height * 100) * 10) / 10));
     renderHighlights();
   };
-  const onUp = () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
+  const onUp = () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); autosaveToLocalStorage(); };
   window.addEventListener('mousemove', onMove);
   window.addEventListener('mouseup', onUp);
 }
@@ -1160,7 +1838,7 @@ function startResize(e, hlIndex, handle) {
     if (handle.includes('s')) { hl.h = Math.max(3, Math.round((orig.h + dy) * 10) / 10); }
     renderHighlights();
   };
-  const onUp = () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
+  const onUp = () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); autosaveToLocalStorage(); };
   window.addEventListener('mousemove', onMove);
   window.addEventListener('mouseup', onUp);
 }
@@ -1220,6 +1898,7 @@ window.addEventListener('mouseup', (e) => {
   wrapper.classList.remove('draw-mode');
   selectRect(DATA[entryIdx].highlights.length - 1);
   updateTranscription();
+  autosaveToLocalStorage();
   showToast('Markierung hinzugefügt');
 });
 
@@ -1232,11 +1911,12 @@ function deleteSelected() {
   selectedRect = null;
   renderHighlights();
   updateTranscription();
+  autosaveToLocalStorage();
   showToast('Markierung gelöscht');
 }
 
 // === EXPORT ===
-function exportData() {
+async function exportData() {
   DATA.forEach(e => {
     if (e.highlights) {
       e.highlights = e.highlights.map(hl => ({
@@ -1246,24 +1926,114 @@ function exportData() {
     }
   });
   const jsonStr = JSON.stringify(DATA, null, 2);
+  const jsContent = '// Auto-generated from data.json — nicht manuell bearbeiten\nwindow.ARTICLE_DATA = ' + jsonStr + ';\n';
 
-  // Download data.json
+  // Preferred path: write directly into the website folder via the File System
+  // Access API (Chrome/Edge). The old data.json/data.js are archived as
+  // data_Vx.json/data_Vx.js first, so no manual download-folder shuffling is needed.
+  if ('showDirectoryPicker' in window) {
+    try {
+      const nextV = await saveDirectlyToWebsiteFolder(jsonStr, jsContent);
+      localStorage.removeItem(AUTOSAVE_KEY);
+      showToast('Gespeichert in website/ — vorheriger Stand als data_V' + nextV + '.json/.js gesichert');
+      return;
+    } catch (e) {
+      if (e && e.name === 'AbortError') {
+        showToast('Speichern abgebrochen');
+        return;
+      }
+      console.error('Direktes Speichern fehlgeschlagen:', e);
+      showToast('Direktes Speichern fehlgeschlagen — Download-Fallback wird verwendet');
+      // fällt durch zum Download-Fallback unten
+    }
+  }
+
+  // Fallback for browsers without File System Access API (z.B. Safari, Firefox):
+  // download both files, must be moved into website/ manually.
   const blob1 = new Blob([jsonStr], { type: 'application/json' });
   const a1 = document.createElement('a');
   a1.href = URL.createObjectURL(blob1);
   a1.download = 'data.json';
   a1.click();
 
-  // Download data.js (for file:// usage)
   setTimeout(() => {
-    const jsContent = '// Auto-generated from data.json — nicht manuell bearbeiten\nwindow.ARTICLE_DATA = ' + jsonStr + ';\n';
     const blob2 = new Blob([jsContent], { type: 'application/javascript' });
     const a2 = document.createElement('a');
     a2.href = URL.createObjectURL(blob2);
     a2.download = 'data.js';
     a2.click();
-    showToast('data.json + data.js heruntergeladen — beide in website/ ersetzen');
+    showToast('data.json + data.js heruntergeladen — beide in website/ ersetzen (dieser Browser unterstützt kein direktes Speichern)');
   }, 500);
+}
+
+// === DIRECT-TO-DISK SAVE (File System Access API) ===
+// In-memory cache only — deliberately NOT IndexedDB. Any await before
+// showDirectoryPicker() (e.g. an IndexedDB round trip, which resolves via a
+// task, not a microtask) discards Chrome's "user activation" from the click,
+// causing showDirectoryPicker() to throw SecurityError silently and fall back
+// to downloads without ever showing the dialog. So: no lookups before the
+// picker call. The handle is remembered only for the lifetime of this tab —
+// after a reload the folder has to be picked again, once.
+let cachedDirHandle = null;
+
+// Returns a usable, permission-granted directory handle — picking the folder
+// only if none is cached yet or permission was revoked.
+async function ensureWebsiteDirHandle() {
+  if (cachedDirHandle) {
+    try {
+      let perm = await cachedDirHandle.queryPermission({ mode: 'readwrite' });
+      if (perm !== 'granted') perm = await cachedDirHandle.requestPermission({ mode: 'readwrite' });
+      if (perm === 'granted') return cachedDirHandle;
+    } catch (e) { /* Handle ungültig geworden — neu auswählen lassen */ }
+    cachedDirHandle = null;
+  }
+
+  // Erster/erneuter Aufruf in dieser Sitzung: Picker sofort öffnen, ohne
+  // vorherige awaits, damit die Klick-Gestensignatur noch gültig ist.
+  const handle = await window.showDirectoryPicker({ id: 'dreyfusWebsite', mode: 'readwrite' });
+  cachedDirHandle = handle;
+  return handle;
+}
+
+async function findNextVersionNumber(dirHandle) {
+  let maxV = 0;
+  for await (const [name] of dirHandle.entries()) {
+    const m = name.match(/^data_V(\d+)\.(json|js)$/i);
+    if (m) maxV = Math.max(maxV, parseInt(m[1], 10));
+  }
+  return maxV + 1;
+}
+
+async function readFileTextIfExists(dirHandle, name) {
+  try {
+    const fh = await dirHandle.getFileHandle(name);
+    return await (await fh.getFile()).text();
+  } catch (e) {
+    return null; // existiert noch nicht
+  }
+}
+
+async function writeFileText(dirHandle, name, content) {
+  const fh = await dirHandle.getFileHandle(name, { create: true });
+  const writable = await fh.createWritable();
+  await writable.write(content);
+  await writable.close();
+}
+
+async function saveDirectlyToWebsiteFolder(jsonStr, jsContent) {
+  const dirHandle = await ensureWebsiteDirHandle();
+  const nextV = await findNextVersionNumber(dirHandle);
+
+  const oldJson = await readFileTextIfExists(dirHandle, 'data.json');
+  const oldJs = await readFileTextIfExists(dirHandle, 'data.js');
+
+  if (oldJson !== null) await writeFileText(dirHandle, 'data_V' + nextV + '.json', oldJson);
+  if (oldJs !== null) await writeFileText(dirHandle, 'data_V' + nextV + '.js', oldJs);
+
+  await writeFileText(dirHandle, 'data.json', jsonStr);
+  await writeFileText(dirHandle, 'data.js', jsContent);
+
+  return nextV;
 }
 
 // === TOAST ===
