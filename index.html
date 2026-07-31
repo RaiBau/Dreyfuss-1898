@@ -6,6 +6,8 @@
 <title>Émile Zolas „J´Accuse…!“ im Spiegel der deutschen Presse 1898 — Constanze Baumann</title>
 <style>
 :root {
+  --header-h: 88px;
+  --topbar-h: 130px;
   --bg: #f5f0e8;
   --bg-card: #ffffff;
   --text: #1a1a1a;
@@ -66,7 +68,7 @@ body {
   border-bottom: 1px solid var(--border);
   background: var(--bg-card);
   position: sticky;
-  top: 88px;
+  top: var(--header-h, 88px);
   z-index: 99;
 }
 
@@ -198,7 +200,7 @@ body {
 .viewer {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  min-height: calc(100vh - 150px);
+  min-height: calc(100vh - var(--topbar-h, 130px) - 20px);
 }
 
 /* Zoom toolbar */
@@ -211,7 +213,7 @@ body {
   border-bottom: 1px solid var(--border);
   border-right: 1px solid var(--border);
   position: sticky;
-  top: 130px;
+  top: var(--topbar-h, 130px);
   z-index: 10;
 }
 
@@ -289,9 +291,9 @@ body {
 .pages-panel {
   border-right: 1px solid var(--border);
   overflow: auto;               /* beide Scrollbalken wenn nötig */
-  height: calc(100vh - 150px);
+  height: calc(100vh - var(--topbar-h, 130px) - 20px);
   position: sticky;
-  top: 130px;
+  top: var(--topbar-h, 130px);
   /* kein padding — kommt in pages-inner */
 }
 
@@ -348,9 +350,9 @@ body {
 .transcription-panel {
   padding: 1.5rem;
   overflow-y: auto;
-  height: calc(100vh - 150px);
+  height: calc(100vh - var(--topbar-h, 130px) - 20px);
   position: sticky;
-  top: 130px;
+  top: var(--topbar-h, 130px);
   background: var(--bg-card);
 }
 
@@ -587,7 +589,7 @@ body {
 <!-- Viewer Section -->
 <div id="viewer-section" class="section active">
   <div class="viewer">
-    <div style="display:flex; flex-direction:column; position:sticky; top:130px; height:calc(100vh - 150px);">
+    <div style="display:flex; flex-direction:column; position:sticky; top:var(--topbar-h, 130px); height:calc(100vh - var(--topbar-h, 130px) - 20px);">
       <!-- Zoom Toolbar -->
       <div class="zoom-toolbar">
         <button class="zoom-btn" id="zoom-out" title="Verkleinern">−</button>
@@ -804,7 +806,7 @@ function buildTimeline() {
         </div>
         <div class="tl-meta">${entry.newspaper}</div>
         ${entry.remarks ? `<div class="tl-remarks">${entry.remarks.substring(0, 150)}${entry.remarks.length > 150 ? '…' : ''}</div>` : ''}
-        ${entry.dfg_link ? '<span class="tag">DFG-Link</span>' : ''}
+        
         ${entry.pdfPage ? `<span class="tag">PDF-Seite ${entry.pdfPage}</span>` : ''}
       </div>
     `;
@@ -1108,6 +1110,37 @@ function goToTimeline() {
   document.querySelector('[data-target="timeline-section"]').classList.add('active');
   document.getElementById('timeline-section').classList.add('active');
 }
+</script>
+<script>
+// Sticky-Offsets an die tatsächliche Header-/Menü-Höhe koppeln, damit die
+// Menüzeile immer komplett sichtbar bleibt — unabhängig von Titellänge und
+// Fensterbreite (ersetzt die früher fest verdrahteten 88px/130px).
+(function () {
+  function updateStickyOffsets() {
+    var header = document.querySelector('.site-header');
+    var nav = document.querySelector('.nav-tabs');
+    if (!header || !nav) return;
+    var h = header.offsetHeight;
+    var n = nav.offsetHeight;
+    var root = document.documentElement.style;
+    root.setProperty('--header-h', h + 'px');
+    root.setProperty('--topbar-h', (h + n) + 'px');
+  }
+  updateStickyOffsets();
+  window.addEventListener('load', updateStickyOffsets);
+  window.addEventListener('resize', updateStickyOffsets);
+  // Web-Fonts verändern die Header-Höhe nach dem Laden -> nachmessen
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(updateStickyOffsets);
+  }
+  if (window.ResizeObserver) {
+    var ro = new ResizeObserver(updateStickyOffsets);
+    var header = document.querySelector('.site-header');
+    var nav = document.querySelector('.nav-tabs');
+    if (header) ro.observe(header);
+    if (nav) ro.observe(nav);
+  }
+})();
 </script>
 </body>
 </html>
