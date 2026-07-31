@@ -1034,15 +1034,10 @@ function showTranscription(idx) {
         `<p>${p.replace(/\n/g, ' ').trim()}</p>`
       ).join('');
 
-  // Extract article title from first line
-  const firstLine = entry.text.split('\n').find(l => l.trim().length > 5);
-  const title = firstLine ? firstLine.trim().substring(0, 120) : entry.edition;
-
   content.innerHTML = `
     <div class="transcription-content active">
       <div class="trans-header">
         <div class="trans-newspaper">${upperKeepEszett(entry.newspaper)}</div>
-        <div class="trans-title">${title}</div>
         <div class="trans-edition">${entry.weekday}, ${entry.date} — ${entry.edition}</div>
         ${entry.remarks ? `<div class="trans-remarks">${entry.remarks}</div>` : ''}
         ${entry.dfg_link ? `
