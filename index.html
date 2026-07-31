@@ -382,7 +382,8 @@ body {
 
 .trans-newspaper {
   font-size: 0.7rem;
-  text-transform: uppercase;
+  /* Großschreibung erfolgt in JS (upperKeepEszett), damit „ß“ nicht zu „SS“ wird */
+  text-transform: none;
   letter-spacing: 1.5px;
   color: var(--text-light);
   margin-bottom: 0.25rem;
@@ -1007,6 +1008,11 @@ const observer = new IntersectionObserver((entries) => {
 
 document.querySelectorAll('.page-container').forEach(c => observer.observe(c));
 
+// Uppercase a string but keep „ß“ as „ß“ (CSS/JS uppercase would turn it into „SS“).
+function upperKeepEszett(s) {
+  return (s || '').replace(/\u00df/g, '\u0000').toUpperCase().replace(/\u0000/g, '\u00df');
+}
+
 // === TRANSCRIPTION DISPLAY ===
 function showTranscription(idx) {
   const entry = DATA[idx];
@@ -1035,7 +1041,7 @@ function showTranscription(idx) {
   content.innerHTML = `
     <div class="transcription-content active">
       <div class="trans-header">
-        <div class="trans-newspaper">${entry.newspaper}</div>
+        <div class="trans-newspaper">${upperKeepEszett(entry.newspaper)}</div>
         <div class="trans-title">${title}</div>
         <div class="trans-edition">${entry.weekday}, ${entry.date} — ${entry.edition}</div>
         ${entry.remarks ? `<div class="trans-remarks">${entry.remarks}</div>` : ''}
