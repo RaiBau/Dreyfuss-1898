@@ -772,8 +772,8 @@ function buildTimeline() {
     if (entry.date !== currentDate) {
       currentDate = entry.date;
       const dateLabel = document.createElement('div');
-      dateLabel.style.cssText = 'font-size:0.7rem; text-transform:uppercase; letter-spacing:1px; color:var(--text-light); margin:1rem 0 0.5rem; padding-left:4px;';
-      dateLabel.textContent = entry.weekday + ', ' + entry.date;
+      dateLabel.style.cssText = 'font-size:0.8rem; text-transform:none; letter-spacing:0.3px; color:var(--text-light); margin:1rem 0 0.5rem; padding-left:4px;';
+      dateLabel.textContent = 'Zeitungsausgaben vom ' + entry.weekday + ', ' + entry.date;
       container.appendChild(dateLabel);
     }
 
@@ -816,8 +816,13 @@ function buildTimeline() {
       document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
       document.querySelector('[data-target="viewer-section"]').classList.add('active');
       document.getElementById('viewer-section').classList.add('active');
-      currentTransIdx = idx;
-      showTranscription(idx);
+      // Manuelle Elemente haben keinen eigenen Volltext — dann die Transkription
+      // des Artikels derselben Seite auflösen (wie im Editor), statt leer zu bleiben.
+      const showIdx = (entry.text && entry.text.length > 50)
+        ? idx
+        : (pageToTranscription[entry.pdfPage] ?? idx);
+      currentTransIdx = showIdx;
+      showTranscription(showIdx);
       if (entry.pdfPage) {
         // Etwaigen Zoom vor dem Sprung zurücksetzen
         if (zoomLevel !== 1.0) setZoom(1.0);
