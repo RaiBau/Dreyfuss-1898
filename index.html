@@ -693,7 +693,10 @@ let pageToTranscription = {};
 
 function buildPageMapping() {
   DATA.forEach((entry, idx) => {
-    if (entry.pdfPage) {
+    // Nur echte Transkriptionen besitzen die Seiten→Text-Zuordnung. Manuelle
+    // Zeitleisten-Einträge (ohne Volltext) dürfen einen Artikel auf derselben
+    // PDF-Seite nicht überschreiben (spiegelt rebuildIndexes im Editor).
+    if (entry.pdfPage && entry.text && entry.text.length > 50) {
       pageToTranscription[entry.pdfPage] = idx;
     }
   });
